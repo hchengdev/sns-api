@@ -1,2 +1,4 @@
-package com.snsapi.user;public class UserController {
+package com.snsapi.user;
+
+public class UserController {
 }

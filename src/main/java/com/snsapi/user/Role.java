@@ -1,2 +1,5 @@
-package com.snsapi.user;public class Role {
+package com.snsapi.user;
+
+public enum Role {
+    ROLE_USER, ROLE_ADMIN;
 }
