@@ -1,6 +1,7 @@
 package com.snsapi.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.snsapi.role.UserRole;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -19,57 +20,65 @@ import java.util.*;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "user")
+@Table(name = "users")
 public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private int id;
 
     @Email
-    @Column(name = "email", unique = true, nullable = false, length = 50)
+    @Column(unique = true, nullable = false, length = 50)
     private String email;
 
-    @JsonIgnore
-    @Column(name = "password", nullable = false, length = 255)
+    @JsonProperty("password")
+    @Column(nullable = false, length = 255)
     private String password;
 
-    @Column(name = "firstname", nullable = false, length = 255)
+    @JsonProperty("firstName")
+    @Column(nullable = false, length = 255)
     private String firstName;
 
-    @Column(name = "lastname", nullable = false, length = 255)
+    @JsonProperty("lastName")
+    @Column(nullable = false, length = 255)
     private String lastName;
 
-    @Column(name = "gender", nullable = false, length = 10)
+    @JsonProperty("gender")
+    @Column(nullable = false, length = 10)
     private String gender;
 
-    @Column(name = "profile_picture", nullable = false, length = 255)
+    @JsonProperty("profilePicture")
     private String profilePicture;
 
-    @Column(name = "cover_picture", nullable = false, length = 255)
+    @JsonProperty("coverPicture")
+    @Column(nullable = false, length = 255)
     private String coverPicture;
 
-    @Column(name = "active", nullable = false)
+    @JsonProperty("active")
+    @Column(nullable = false)
     private boolean active;
 
-    @Column(name = "biography", nullable = false, length = 255)
+    @JsonProperty("biography")
+    @Column(nullable = false, length = 255)
     private String biography;
 
-    @Column(name = "birthday", nullable = false)
+    @JsonProperty("birthday")
+    @Column(nullable = false)
     private String birthday;
 
-    @Column(name = "address", nullable = false, length = 255)
+    @JsonProperty("address")
+    @Column(nullable = false, length = 255)
     private String address;
-
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<UserRole> roles = new HashSet<>();
 
+    public void addRole(UserRole role) {
+        roles.add(role);
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Set<UserRole> roles = getRoles();
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         for (UserRole role : roles) {
             authorities.add(new SimpleGrantedAuthority(role.getName()));
@@ -79,7 +88,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return getEmail();
+        return email;
     }
 
     @Override
@@ -99,6 +108,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return active;
     }
 }
