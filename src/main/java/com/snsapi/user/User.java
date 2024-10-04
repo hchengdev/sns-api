@@ -1,8 +1,6 @@
 package com.snsapi.user;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.snsapi.role.UserRole;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
@@ -44,8 +42,9 @@ public class User implements UserDetails {
     private String lastName;
 
     @JsonProperty("gender")
-    @Column(nullable = false, length = 10)
-    private String gender;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Gender gender;  // Thay đổi ở đây
 
     @JsonProperty("profilePicture")
     private String profilePicture;
@@ -70,18 +69,20 @@ public class User implements UserDetails {
     @Column(nullable = false, length = 255)
     private String address;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Set<UserRole> roles = new HashSet<>();
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    @Enumerated(EnumType.STRING)
+    private Set<Role> roles = new HashSet<>();
 
-    public void addRole(UserRole role) {
+    public void addRole(Role role) {
         roles.add(role);
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        for (UserRole role : roles) {
-            authorities.add(new SimpleGrantedAuthority(role.getName()));
+        for (Role role : roles) {
+            authorities.add(new SimpleGrantedAuthority(role.name()));
         }
         return authorities;
     }
