@@ -41,7 +41,6 @@ public class UserService {
 
     public void save(Long id, UserRequest request) throws UserNotFoundException {
         User user = findById(id);
-
         var updatedUser = User.builder()
                 .id(user.getId())
                 .email(request.getEmail() == null ? user.getEmail() : request.getEmail())
@@ -57,7 +56,6 @@ public class UserService {
                 .address(request.getAddress() == null ? user.getAddress() : request.getAddress())
                 .roles(request.getRoles() == null || request.getRoles().isEmpty() ? user.getRoles() : request.getRoles())
                 .build();
-
         userRepository.save(updatedUser);
     }
 

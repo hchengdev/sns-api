@@ -2,7 +2,6 @@ package com.snsapi.config;
 
 import com.snsapi.config.jwtconfig.JwtAuthenticationTokenFilter;
 import com.snsapi.user.UserDetailsServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,11 +21,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
-    @Autowired
-    private UserDetailsServiceImpl userService;
 
-    @Autowired
-    private JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
+    private final UserDetailsServiceImpl userService;
+    private final JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
+
+    public SecurityConfig(UserDetailsServiceImpl userService, JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter) {
+        this.userService = userService;
+        this.jwtAuthenticationTokenFilter = jwtAuthenticationTokenFilter;
+    }
 
     @Bean(BeanIds.AUTHENTICATION_MANAGER)
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
