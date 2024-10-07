@@ -1,6 +1,7 @@
 package com.snsapi.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.snsapi.post.Post;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
@@ -68,6 +69,9 @@ public class User implements UserDetails {
     @JsonProperty("address")
     @Column(nullable = false, length = 255)
     private String address;
+
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
+    List<Post> posts = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
