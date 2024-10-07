@@ -1,6 +1,5 @@
 package com.snsapi.user;
 
-import com.snsapi.role.UserRole;
 import lombok.Builder;
 import lombok.Data;
 
@@ -14,12 +13,12 @@ public class UserRequest {
     private String password;
     private String firstName;
     private String lastName;
-    private String gender;
+    private Gender gender;
     private String profilePicture;
     private String coverPicture;
     private Boolean active;
     private String biography;
     private String birthday;
     private String address;
-    private Set<UserRole> roles;
+    private Set<Role> roles;
 }

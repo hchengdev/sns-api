@@ -20,11 +20,12 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
+
 public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "post_id", nullable = false)
@@ -35,7 +36,7 @@ public class Comment {
     private User user;
 
     @NotBlank(message = "Nội dung bình luận không được để trống.")
-    @Column(name = "content")
+    @Column(name = "content") // TODO: validate do dai (250)
     private String content;
 
     @CreatedDate
@@ -50,4 +51,22 @@ public class Comment {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private Set<User> likeUsers;
+
+//    TODO: uncomment later
+//    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+//    @JoinColumn(name = "post_id")
+//    private Post post;
+
+//    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+//    private List<User> likes;
+
+//    public void likeComment (User user) {
+//        if(!likes.contains(user)) {
+//            likes.add(user);
+//        }
+//    }
+
+//    public void unLikeComment (User user) {
+//        likes.remove(user);
+//    }
 }
