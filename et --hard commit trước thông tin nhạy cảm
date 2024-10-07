@@ -1,0 +1,113 @@
+[33mcommit 2eb9a2468738d47c8ab8e6463d9a34b36af5406b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeature/login[m[33m)[m
+Author: hienhavan <havanhien54321@gmail.com>
+Date:   Mon Oct 7 08:55:41 2024 +0700
+
+    Remove sensitive data
+
+[33mcommit 6f233b26b3960ca7f5300a3b3a0704e5f3c981cd[m
+Author: hienhavan <havanhien54321@gmail.com>
+Date:   Mon Oct 7 08:46:57 2024 +0700
+
+    Remove sensitive information
+
+[33mcommit 86015455d5d17f225d1038ec4ad1075da443dc19[m
+Author: hienhavan <havanhien54321@gmail.com>
+Date:   Sat Oct 5 22:52:47 2024 +0700
+
+    done dk,dn,dn bang gg (da dn,chua luu vao db)
+
+[33mcommit bf9397108d97c68a8f301ac9f234e9e57e165a7e[m
+Author: hienhavan <havanhien54321@gmail.com>
+Date:   Sat Oct 5 22:46:20 2024 +0700
+
+    dn,dk,dn bang gg(xong dn chua luu vao db
+
+[33mcommit d9756b19b3da1f3e9a1ad58c21a63687ddc8a8ea[m
+Author: hienhavan <havanhien54321@gmail.com>
+Date:   Sat Oct 5 22:31:26 2024 +0700
+
+    done dn,dk,dn bang gg(da xong dn nhung chua luu vao db
+
+[33mcommit a756f8527cd71c2ace8bc6640c174996c7102bbd[m
+Author: hienhavan <havanhien54321@gmail.com>
+Date:   Sat Oct 5 22:14:04 2024 +0700
+
+    dn,dk,dngg
+
+[33mcommit 36fbfca64c654a56f14c5693ede8850e6d6e423b[m
+Author: hienhavan <havanhien54321@gmail.com>
+Date:   Sat Oct 5 21:56:14 2024 +0700
+
+    dang nhap,dang ky bang jwt,da dang nhap gg nhung chua luu vao db (dang hoan thien)
+
+[33mcommit 1c72d871b6c05f3fac394cf02cd47214180781e6[m
+Author: hienhavan <havanhien54321@gmail.com>
+Date:   Sat Oct 5 15:17:03 2024 +0700
+
+    done dang nhap,dang ky,dang nhap bang gg (chua luu db)
+
+[33mcommit 4b8112cfd125a9f6dc75952fece639e5ada95643[m
+Author: hienhavan <havanhien54321@gmail.com>
+Date:   Sat Oct 5 09:30:20 2024 +0700
+
+    chỉnh sử file enum gender
+
+[33mcommit c663f596c45356ad64df9d5c08ff4209e3dc7e2d[m
+Author: hienhavan <havanhien54321@gmail.com>
+Date:   Fri Oct 4 14:13:22 2024 +0700
+
+    xong dang ky,dang nhap, hash password
+
+[33mcommit b834482ffc49adeaade7a8be53fec121b78dee00[m
+Author: hienhavan <havanhien54321@gmail.com>
+Date:   Fri Oct 4 12:53:06 2024 +0700
+
+    tạo được token
+
+[33mcommit 07ceddb6cdd0bd9598e83e80da9dd6bd53d70ea2[m[33m ([m[1;31morigin/feature/login[m[33m)[m
+Author: hienhavan <havanhien54321@gmail.com>
+Date:   Fri Oct 4 09:51:03 2024 +0700
+
+    model users v2
+
+[33mcommit 344b6f6618ae3cb2b252899826a40f5a2f57a21d[m
+Author: hienhavan <havanhien54321@gmail.com>
+Date:   Fri Oct 4 09:00:17 2024 +0700
+
+    model user V1
+
+[33mcommit 720d5e06c937425beed58305f27e05dc8006f8fe[m
+Author: hienhavan <havanhien54321@gmail.com>
+Date:   Fri Oct 4 08:57:14 2024 +0700
+
+    model users v1
+
+[33mcommit 222fac70738482de356025da9315b9c45e896ab5[m
+Author: hienhavan <havanhien54321@gmail.com>
+Date:   Fri Oct 4 08:51:24 2024 +0700
+
+    model users
+
+[33mcommit be34b27ad2eafaa32f020dab628a4762d33cdf52[m
+Author: hienhavan <havanhien54321@gmail.com>
+Date:   Thu Oct 3 20:29:22 2024 +0700
+
+    model user
+
+[33mcommit 0688d0b4a6ad4c0e58f531379000c4ac638b3dec[m
+Author: hienhavan <havanhien54321@gmail.com>
+Date:   Thu Oct 3 20:26:14 2024 +0700
+
+    model user
+
+[33mcommit 4a515367dd52c898b40fc7ac80ecb5eea01ae950[m[33m ([m[1;31morigin/dev[m[33m, [m[1;32mdev[m[33m)[m
+Author: trangnguyenhuu <nguyenhuutrang007@gmail.com>
+Date:   Wed Oct 2 16:43:42 2024 +0700
+
+    startup kit
+
+[33mcommit 0130d2ef98b8c23058e33cc2f59c6411830d5f4e[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m
+Author: trangnguyenhuu <nguyenhuutrang007@gmail.com>
+Date:   Wed Oct 2 16:35:45 2024 +0700
+
+    first commit
