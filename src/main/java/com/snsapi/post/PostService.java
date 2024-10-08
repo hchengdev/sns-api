@@ -60,7 +60,7 @@ public class PostService {
         return post;
     }
 
-    public void likePost(Long postId, Long userId) {
+    public void likePost(Integer postId, Integer userId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Post không tồn tại."));
         User user = userRepository.findById(userId)
@@ -70,7 +70,7 @@ public class PostService {
         postRepository.save(post);
     }
 
-    public void unlikePost(Long postId, Long userId) {
+    public void unlikePost(Integer postId, Integer userId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Post không tồn tại."));
         User user = userRepository.findById(userId)
@@ -94,7 +94,7 @@ public class PostService {
         }
     }
 
-    public Post updatePost(Long postId, PostRequest postRequest, MultipartFile file) {
+    public Post updatePost(Integer postId, PostRequest postRequest, MultipartFile file) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Bài viết không tồn tại."));
 
@@ -116,10 +116,10 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    public void deletePost(Long postId) {
+    public Post deletePost(Integer postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Bài viết không tồn tại."));
-
         postRepository.delete(post);
+        return post;
     }
 }
