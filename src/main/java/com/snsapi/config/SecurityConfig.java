@@ -50,10 +50,12 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
+        return http.csrf(AbstractHttpConfigurer::disable)
+                .addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
+                                       
+                        .requestMatchers("/api/v1/login", "/api/v1/register", "/v1/auth/google", "/auth/google/callback").permitAll()
 
-                        .requestMatchers("/api/v1/login", "/api/v1/register", "/v1/auth/google", "/auth/google/callback", "/api/v1/posts").permitAll()
                         .requestMatchers("/api/v1/**").authenticated()
 
                         .anyRequest().authenticated()
@@ -62,7 +64,7 @@ public class SecurityConfig {
                         .loginPage("/v1/auth/google")
                         .defaultSuccessUrl("/profile", true)
                         .failureUrl("/")
-                );
-        return http.build();
+                )
+                .build();
     }
 }

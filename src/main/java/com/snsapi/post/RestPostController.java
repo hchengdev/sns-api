@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/posts")
@@ -18,10 +19,26 @@ public class RestPostController {
     private final PostService postService;
 
     @GetMapping
-    public ResponseEntity<List<Post>> findAllPosts() {
+    public ResponseEntity<List<PostDTO>> findAllPosts() {
         List<Post> posts = postService.getAllPosts();
-        return ResponseEntity.ok(posts);
+
+        List<PostDTO> postDTOs = posts.stream()
+                .distinct()
+                .map(post -> {
+                    PostDTO postDTO = new PostDTO();
+                    postDTO.setId(post.getId());
+                    postDTO.setContent(post.getContent());
+                    postDTO.setVisibility(post.getVisibility());
+                    postDTO.setCreatedAt(post.getCreatedAt());
+                    postDTO.setUpdatedAt(post.getUpdatedAt());
+
+                    return postDTO;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(postDTOs);
     }
+
 
     @PostMapping
     public ResponseEntity<?> save(@RequestParam(value = "file", required = false) MultipartFile file,
@@ -41,7 +58,6 @@ public class RestPostController {
         try {
             Post savedPost = postService.save(postRequest, file);
 
-            // Chuyển đổi sang DTO
             PostDTO postDTO = new PostDTO();
             postDTO.setId(savedPost.getId());
             postDTO.setContent(savedPost.getContent());
@@ -55,8 +71,6 @@ public class RestPostController {
                     .body("Đã xảy ra lỗi khi lưu bài post: " + e.getMessage());
         }
     }
-
-
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updatePosts(@PathVariable("id") Integer postId,
