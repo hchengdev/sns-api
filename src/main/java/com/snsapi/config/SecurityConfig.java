@@ -52,8 +52,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
+
                         .requestMatchers("/api/v1/login", "/api/v1/register", "/v1/auth/google", "/auth/google/callback", "/api/v1/posts").permitAll()
                         .requestMatchers("/api/v1/**").authenticated()
+
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth -> oauth
