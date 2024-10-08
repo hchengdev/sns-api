@@ -38,21 +38,17 @@ public class PostService {
 
     public Post save(PostRequest postRequest, MultipartFile file) {
         Post post = new Post();
-        post.setUser(userService.findById(postRequest.getUserId())); // Lấy người dùng từ service
+        post.setUser(userService.findById(postRequest.getUserId()));
         post.setContent(postRequest.getContent());
         post.setVisibility(postRequest.getVisibility());
 
-        // Kiểm tra file và thêm vào media
         if (file != null && !file.isEmpty()) {
-            Media media = new Media(); // Giả sử bạn có lớp Media
-            // Xử lý file và thiết lập các thuộc tính cho media
-            media.setFileName(file.getOriginalFilename()); // Ví dụ, nếu bạn có thuộc tính tên tệp
-            // Thiết lập thêm các thuộc tính khác cho media nếu cần
+            Media media = new Media();
+            media.setFileName(file.getOriginalFilename());
 
-            post.addMedia(media); // Thêm vào danh sách media
+            post.addMedia(media);
         }
 
-        // Lưu bài viết vào cơ sở dữ liệu
         return postRepository.save(post);
     }
 
