@@ -70,4 +70,11 @@ public class Post {
         FRIENDS_ONLY,
         PUBLIC
     }
+
+    public void addMedia(Media mediaItem) {
+        if (mediaItem != null) {
+            mediaItem.setPost(this);
+            this.media.add(mediaItem);
+        }
+    }
 }

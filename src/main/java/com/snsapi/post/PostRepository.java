@@ -18,6 +18,4 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             "FROM Post p JOIN p.likeUsers u " +
             "WHERE p.id = :postId AND u.id = :userId")
     boolean existsByPostIdAndUserId(Integer postId, Long userId);
-
-
 }

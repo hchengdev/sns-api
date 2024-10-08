@@ -1,0 +1,123 @@
+package com.snsapi.auth;
+
+import com.snsapi.config.jwt.JwtResponse;
+import com.snsapi.config.jwt.JwtService;
+import com.snsapi.user.User;
+import com.snsapi.user.UserServiceInterface;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.Optional;
+
+@RestController
+@CrossOrigin(origins = "*")
+public class AuthController {
+
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
+    private final UserServiceInterface userDetailsService;
+
+    @Value("${GOOGLE_APPLICATION_CLIENT_ID}")
+    private String clientId;
+
+    @Value("${GOOGLE_APPLICATION_CLIENT_SECRET}")
+    private String clientSecret;
+
+    @Autowired
+    public AuthController(AuthenticationManager authenticationManager, JwtService jwtService, UserServiceInterface userDetailsService) {
+        this.authenticationManager = authenticationManager;
+        this.jwtService = jwtService;
+        this.userDetailsService = userDetailsService;
+    }
+
+    @PostMapping("/api/v1/login")
+    public ResponseEntity<?> login(@RequestBody User user) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword())
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtService.generateTokenLogin(authentication);
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            Optional<User> currentUser = userDetailsService.findByUserEmail(user.getEmail());
+
+            if (!currentUser.isPresent()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Người dùng không tìm thấy");
+            }
+
+            return ResponseEntity.ok(new JwtResponse(currentUser.get().getId(), jwt, userDetails.getUsername()));
+        } catch (DisabledException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Người dùng bị vô hiệu hóa");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/v1/auth/google")
+    public ResponseEntity<String> googleLogin() {
+        try {
+            String redirectUri = "http://localhost:8080/auth/google/callback";
+            String scope = "profile email";
+
+            String encodedScope = URLEncoder.encode(scope, StandardCharsets.UTF_8.toString());
+            String redirectUrl = "https://accounts.google.com/o/oauth2/auth?" +
+                    "client_id=" + clientId +
+                    "&redirect_uri=" + URLEncoder.encode(redirectUri, StandardCharsets.UTF_8.toString()) +
+                    "&response_type=code" +
+                    "&scope=" + encodedScope;
+
+            return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(redirectUrl)).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/auth/google/callback")
+    public ResponseEntity<String> googleCallback(@RequestParam String code) {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+
+            MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
+            requestBody.add("code", code);
+            requestBody.add("client_id", clientId);
+            requestBody.add("client_secret", clientSecret);
+            requestBody.add("redirect_uri", "http://localhost:8080/auth/google/callback");
+            requestBody.add("grant_type", "authorization_code");
+
+            String tokenUri = "https://oauth2.googleapis.com/token";
+            ResponseEntity<Map> response = restTemplate.postForEntity(tokenUri, requestBody, Map.class);
+            String accessToken = (String) response.getBody().get("access_token");
+
+            String userInfoUri = "https://www.googleapis.com/oauth2/v3/userinfo";
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(accessToken);
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<Map> userInfoResponse = restTemplate.exchange(userInfoUri, HttpMethod.GET, entity, Map.class);
+            Map<String, Object> userAttributes = userInfoResponse.getBody();
+            System.out.println("User info: " + userAttributes);
+
+            return ResponseEntity.ok("Authentication successful: " + userAttributes);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed: " + e.getMessage());
+        }
+    }
+}
