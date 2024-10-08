@@ -5,6 +5,7 @@ import com.snsapi.media.Media;
 import com.snsapi.media.MediaRepository;
 import com.snsapi.user.User;
 import com.snsapi.user.UserRepository;
+import com.snsapi.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class PostService {
     private final UserRepository userRepository;
     private final MediaRepository mediaRepository;
     private final CommentRepository commentRepository;
+    private final UserService userService;
 
     @Value("${file-upload}")
     private String fileUpload;
@@ -35,30 +37,25 @@ public class PostService {
     }
 
     public Post save(PostRequest postRequest, MultipartFile file) {
-        User user = userRepository.findById(postRequest.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("Người dùng không tồn tại."));
-        Post post = Post.builder()
-                .content(postRequest.getContent())
-                .visibility(postRequest.getVisibility())
-                .user(user)
-                .build();
+        Post post = new Post();
+        post.setUser(userService.findById(postRequest.getUserId())); // Lấy người dùng từ service
+        post.setContent(postRequest.getContent());
+        post.setVisibility(postRequest.getVisibility());
 
-        postRepository.save(post);
+        // Kiểm tra file và thêm vào media
+        if (file != null && !file.isEmpty()) {
+            Media media = new Media(); // Giả sử bạn có lớp Media
+            // Xử lý file và thiết lập các thuộc tính cho media
+            media.setFileName(file.getOriginalFilename()); // Ví dụ, nếu bạn có thuộc tính tên tệp
+            // Thiết lập thêm các thuộc tính khác cho media nếu cần
 
-        if (postRequest.getFile() != null && !postRequest.getFile().isEmpty()) {
-            String imageFileName = saveFile(postRequest.getFile());
-
-            Media media = Media.builder()
-                    .fileName(imageFileName)
-                    .mediaType(postRequest.getFile().getContentType())
-                    .post(post)
-                    .build();
-
-            mediaRepository.save(media);
-            post.getMedia().add(media);
+            post.addMedia(media); // Thêm vào danh sách media
         }
-        return post;
+
+        // Lưu bài viết vào cơ sở dữ liệu
+        return postRepository.save(post);
     }
+
 
     public void likePost(Integer postId, Integer userId) {
         Post post = postRepository.findById(postId)
@@ -116,10 +113,9 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    public Post deletePost(Integer postId) {
+    public void deletePost(Integer postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Bài viết không tồn tại."));
         postRepository.delete(post);
-        return post;
     }
 }

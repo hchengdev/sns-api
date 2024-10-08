@@ -1,5 +1,6 @@
 package com.snsapi.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -75,6 +76,12 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Set<Role> roles = new HashSet<>();
 
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Post> posts = new ArrayList<>();
+
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authorities = new ArrayList<>();
@@ -109,23 +116,4 @@ public class User implements UserDetails {
         return active;
     }
 
-    public static User build(Optional<User> optionalUser) {
-        User user = optionalUser.orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        return User.builder()
-                .email(user.getEmail())
-                .password(user.getPassword())
-                .roles(user.getRoles())
-                .active(user.isEnabled())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .gender(user.getGender())
-                .profilePicture(user.getProfilePicture())
-                .coverPicture(user.getCoverPicture())
-                .biography(user.getBiography())
-                .birthday(user.getBirthday())
-                .address(user.getAddress())
-                .build();
-    }
-
-}

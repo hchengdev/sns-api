@@ -12,12 +12,10 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     List<Post> findByUser(User user);
 
     @Query("SELECT COUNT(u) FROM Post p JOIN p.likeUsers u WHERE p.id = :postId")
-    long countLikesByPostId(Long postId);
+    long countLikesByPostId(Integer postId);
 
     @Query("SELECT CASE WHEN COUNT(u) > 0 THEN TRUE ELSE FALSE END " +
             "FROM Post p JOIN p.likeUsers u " +
             "WHERE p.id = :postId AND u.id = :userId")
-    boolean existsByPostIdAndUserId(Long postId, Long userId);
-
-
+    boolean existsByPostIdAndUserId(Integer postId, Long userId);
 }
