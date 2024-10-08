@@ -24,7 +24,7 @@ public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @Email
     @Column(unique = true, nullable = false, length = 50)
@@ -70,7 +70,7 @@ public class User implements UserDetails {
     @Column(nullable = false, length = 255)
     private String address;
 
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     List<Post> posts = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
