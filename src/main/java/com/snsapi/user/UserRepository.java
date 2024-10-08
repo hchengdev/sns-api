@@ -4,6 +4,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import java.util.Optional;
 
-public interface UserRepository extends JpaRepository<User, Long> {
+
+public interface UserRepository extends PagingAndSortingRepository<User, Integer> {
+    Optional<User> findById(Integer id);
+
+    User save(User user);
+
+    void deleteById(Integer id);
+
     Optional<User> findByEmail(String email);
 }
