@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.*;
 
@@ -39,13 +40,13 @@ public class User implements UserDetails {
     private String firstName;
 
     @JsonProperty("lastName")
-    @Column(nullable = false, length = 255)
+    @Column(nullable = true, length = 255)
     private String lastName;
 
     @JsonProperty("gender")
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Gender gender;  // Thay đổi ở đây
+    @Column(nullable = true)
+    private Gender gender;
 
     @JsonProperty("profilePicture")
     private String profilePicture;
@@ -59,18 +60,18 @@ public class User implements UserDetails {
     private boolean active;
 
     @JsonProperty("biography")
-    @Column(nullable = false, length = 255)
+    @Column(nullable = true, length = 255)
     private String biography;
 
     @JsonProperty("birthday")
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String birthday;
 
     @JsonProperty("address")
-    @Column(nullable = false, length = 255)
+    @Column(nullable = true, length = 255)
     private String address;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
     List<Post> posts = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -78,13 +79,9 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Set<Role> roles = new HashSet<>();
 
-    public void addRole(Role role) {
-        roles.add(role);
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        List<GrantedAuthority> authorities = new ArrayList<>();
         for (Role role : roles) {
             authorities.add(new SimpleGrantedAuthority(role.name()));
         }
