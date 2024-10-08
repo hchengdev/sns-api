@@ -116,10 +116,10 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    public void deletePost(Integer postId) {
+    public Post deletePost(Integer postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Bài viết không tồn tại."));
-
         postRepository.delete(post);
+        return post;
     }
 }

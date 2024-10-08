@@ -32,23 +32,25 @@ public class RestPostController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updatePosts(@PathVariable Integer postId,
-                                         @RequestParam("file") MultipartFile file,
+    public ResponseEntity<?> updatePosts(@PathVariable("id") Integer postId,
+                                         @RequestParam(value = "file", required = false) MultipartFile file,
                                          @RequestParam("content") String content,
                                          @RequestParam("visibility") Post.VisibilityEnum visibility) {
         PostRequest postRequest = new PostRequest(null, content, visibility, file);
-        if (postService.updatePost(postId, postRequest, file)) {
-            return ResponseEntity.ok().build();
+        Post updatedPost = postService.updatePost(postId, postRequest, file);
+        if (updatedPost != null) {
+            return ResponseEntity.ok(updatedPost);
         } else {
             return ResponseEntity.notFound().build();
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletePost(@PathVariable Integer postId) {
-        if (postService.deletePost(postId)) {
-            return ResponseEntity.ok().build();
-        }else {
+    public ResponseEntity<?> deletePost(@PathVariable("id") Integer postId) {
+        Post deletedPost = postService.deletePost(postId);
+        if (deletedPost != null) {
+            return ResponseEntity.ok(deletedPost);
+        } else {
             return ResponseEntity.notFound().build();
         }
     }
