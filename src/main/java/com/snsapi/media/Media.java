@@ -18,7 +18,7 @@ public class Media {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "post_id")
@@ -29,4 +29,8 @@ public class Media {
 
     @Column(name = "file_name")
     private String fileName;
+
+    public String getUrl() {
+        return "/media/" + fileName;
+    }
 }

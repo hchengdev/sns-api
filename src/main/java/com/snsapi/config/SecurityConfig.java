@@ -55,12 +55,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/login", "/api/v1/register", "/v1/auth/google", "/auth/google/callback").permitAll()
                         .requestMatchers("/api/v1/**").authenticated()
-                        .anyRequest().authenticated()
-                )
-                .oauth2Login(oauth -> oauth
-                        .loginPage("/v1/auth/google")
-                        .defaultSuccessUrl("/profile", true)
-                        .failureUrl("/")
                 )
                 .build();
     }

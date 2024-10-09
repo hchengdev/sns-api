@@ -1,5 +1,7 @@
 package com.snsapi.post;
 
+import com.snsapi.like.LikeDTO;
+import com.snsapi.media.MediaDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,8 +16,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/v1/posts")
 @CrossOrigin("*")
 @RequiredArgsConstructor
-
 public class RestPostController {
+
     private final PostService postService;
 
     @GetMapping
@@ -27,10 +29,24 @@ public class RestPostController {
                 .map(post -> {
                     PostDTO postDTO = new PostDTO();
                     postDTO.setId(post.getId());
+                    postDTO.setUserId(post.getUser().getId());  // Thêm trường userId
                     postDTO.setContent(post.getContent());
                     postDTO.setVisibility(post.getVisibility());
                     postDTO.setCreatedAt(post.getCreatedAt());
                     postDTO.setUpdatedAt(post.getUpdatedAt());
+                    postDTO.setMedia(post.getMedia().stream().map(media -> {
+                        MediaDTO mediaDTO = new MediaDTO();
+                        mediaDTO.setId(media.getId());
+                        mediaDTO.setUrl(media.getUrl());
+                        return mediaDTO;
+                    }).collect(Collectors.toList()));
+                    postDTO.setLike(post.getLikeUsers().stream().map(user -> {
+                        LikeDTO likeDTO = new LikeDTO();
+                        likeDTO.setId(user.getId());
+                        likeDTO.setFirstName(user.getFirstName());
+                        likeDTO.setLastName(user.getLastName());
+                        return likeDTO;
+                    }).collect(Collectors.toList()));
 
                     return postDTO;
                 })
@@ -38,7 +54,6 @@ public class RestPostController {
 
         return ResponseEntity.ok(postDTOs);
     }
-
 
     @PostMapping
     public ResponseEntity<?> save(@RequestParam(value = "file", required = false) MultipartFile file,
@@ -53,17 +68,29 @@ public class RestPostController {
             return ResponseEntity.badRequest().body("Nội dung không được để trống.");
         }
 
-        PostRequest postRequest = new PostRequest(userId, content, visibility, file);
-
         try {
-            Post savedPost = postService.save(postRequest, file);
+            Post savedPost = postService.save(userId, content, visibility, file);
 
             PostDTO postDTO = new PostDTO();
             postDTO.setId(savedPost.getId());
+            postDTO.setUserId(savedPost.getUser().getId());
             postDTO.setContent(savedPost.getContent());
             postDTO.setVisibility(savedPost.getVisibility());
             postDTO.setCreatedAt(savedPost.getCreatedAt());
             postDTO.setUpdatedAt(savedPost.getUpdatedAt());
+            postDTO.setMedia(savedPost.getMedia().stream().map(media -> {
+                MediaDTO mediaDTO = new MediaDTO();
+                mediaDTO.setId(media.getId());
+                mediaDTO.setUrl(media.getUrl());
+                return mediaDTO;
+            }).collect(Collectors.toList()));
+            postDTO.setLike(savedPost.getLikeUsers().stream().map(user -> {
+                LikeDTO likeDTO = new LikeDTO();
+                likeDTO.setId(user.getId());
+                likeDTO.setFirstName(user.getFirstName());
+                likeDTO.setLastName(user.getLastName());
+                return likeDTO;
+            }).collect(Collectors.toList()));
 
             return ResponseEntity.created(URI.create("/api/v1/posts/" + savedPost.getId())).body(postDTO);
         } catch (Exception e) {
@@ -73,16 +100,42 @@ public class RestPostController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updatePosts(@PathVariable("id") Integer postId,
-                                         @RequestParam(value = "file", required = false) MultipartFile file,
-                                         @RequestParam("content") String content,
-                                         @RequestParam("visibility") Post.VisibilityEnum visibility) {
-        PostRequest postRequest = new PostRequest(null, content, visibility, file);
-        Post updatedPost = postService.updatePost(postId, postRequest, file);
-        if (updatedPost != null) {
-            return ResponseEntity.ok(updatedPost);
-        } else {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<?> updatePost(@PathVariable("id") Integer postId,
+                                        @RequestParam(value = "file", required = false) MultipartFile file,
+                                        @RequestParam("content") String content,
+                                        @RequestParam("visibility") Post.VisibilityEnum visibility) {
+        try {
+            Post updatedPost = postService.updatePost(postId, content, visibility, file);
+
+            if (updatedPost != null) {
+                PostDTO postDTO = new PostDTO();
+                postDTO.setId(updatedPost.getId());
+                postDTO.setUserId(updatedPost.getUser().getId());
+                postDTO.setContent(updatedPost.getContent());
+                postDTO.setVisibility(updatedPost.getVisibility());
+                postDTO.setCreatedAt(updatedPost.getCreatedAt());
+                postDTO.setUpdatedAt(updatedPost.getUpdatedAt());
+                postDTO.setMedia(updatedPost.getMedia().stream().map(media -> {
+                    MediaDTO mediaDTO = new MediaDTO();
+                    mediaDTO.setId(media.getId());
+                    mediaDTO.setUrl(media.getUrl());
+                    return mediaDTO;
+                }).collect(Collectors.toList()));
+                postDTO.setLike(updatedPost.getLikeUsers().stream().map(user -> {
+                    LikeDTO likeDTO = new LikeDTO();
+                    likeDTO.setId(user.getId());
+                    likeDTO.setFirstName(user.getFirstName());
+                    likeDTO.setLastName(user.getLastName());
+                    return likeDTO;
+                }).collect(Collectors.toList()));
+
+                return ResponseEntity.ok(postDTO);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Đã xảy ra lỗi khi cập nhật bài post: " + e.getMessage());
         }
     }
 
