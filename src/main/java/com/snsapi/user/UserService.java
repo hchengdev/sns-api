@@ -19,11 +19,10 @@ public class UserService implements UserServiceInterface, UserDetailsService {
                 .password(user.getPassword())
                 .roles(user.getRoles())
                 .active(user.isEnabled())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
+                .name(user.getName())
                 .gender(user.getGender())
                 .profilePicture(user.getProfilePicture())
-                .coverPicture(user.getCoverPicture())
+                .phone(user.getPhone())
                 .biography(user.getBiography())
                 .birthday(user.getBirthday())
                 .address(user.getAddress())
@@ -39,7 +38,7 @@ public class UserService implements UserServiceInterface, UserDetailsService {
     }
 
     @Override
-    public User findById(Long id) {
+    public User findById(int id) {
         return userRepository.findById(id).orElse(null);
     }
 

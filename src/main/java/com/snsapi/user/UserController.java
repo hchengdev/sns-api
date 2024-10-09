@@ -1,14 +1,12 @@
 package com.snsapi.user;
 
 import com.snsapi.config.jwt.JwtService;
+import com.snsapi.exception.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -38,4 +36,19 @@ public class UserController {
         }
     }
 
+    @GetMapping("api/v1/user/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable int id) {
+        userService.findById(id);
+        return ResponseEntity.ok(userService.findById(id));
+    }
+
+    @PutMapping("/api/v1/usersUpdate/{id}")
+    public ResponseEntity<String> updateUser(@PathVariable int id, @RequestBody UpdateUserRequest updateRequest) {
+        try {
+            userService.update(id, updateRequest);
+            return ResponseEntity.ok("User updated successfully");
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
 }

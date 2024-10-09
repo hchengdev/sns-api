@@ -4,6 +4,7 @@ import com.snsapi.config.jwt.JwtResponse;
 import com.snsapi.config.jwt.JwtService;
 import com.snsapi.user.User;
 import com.snsapi.user.UserServiceInterface;
+import com.snsapi.user.UserServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -34,6 +35,8 @@ public class AuthController {
     private final JwtService jwtService;
     private final UserServiceInterface userDetailsService;
 
+    private final UserServices userServices;
+
     @Value("${GOOGLE_APPLICATION_CLIENT_ID}")
     private String clientId;
 
@@ -41,10 +44,11 @@ public class AuthController {
     private String clientSecret;
 
     @Autowired
-    public AuthController(AuthenticationManager authenticationManager, JwtService jwtService, UserServiceInterface userDetailsService) {
+    public AuthController(AuthenticationManager authenticationManager, JwtService jwtService, UserServiceInterface userDetailsService, UserServices userServices) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
+        this.userServices = userServices;
     }
 
     @PostMapping("/api/v1/login")
@@ -92,32 +96,44 @@ public class AuthController {
     @GetMapping("/auth/google/callback")
     public ResponseEntity<String> googleCallback(@RequestParam String code) {
         try {
-            RestTemplate restTemplate = new RestTemplate();
+            String accessToken = getAccessToken(code);
 
-            MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
-            requestBody.add("code", code);
-            requestBody.add("client_id", clientId);
-            requestBody.add("client_secret", clientSecret);
-            requestBody.add("redirect_uri", "http://localhost:8080/auth/google/callback");
-            requestBody.add("grant_type", "authorization_code");
+            Map<String, Object> userAttributes = getUserInfo(accessToken);
 
-            String tokenUri = "https://oauth2.googleapis.com/token";
-            ResponseEntity<Map> response = restTemplate.postForEntity(tokenUri, requestBody, Map.class);
-            String accessToken = (String) response.getBody().get("access_token");
+            String email = (String) userAttributes.get("email");
 
-            String userInfoUri = "https://www.googleapis.com/oauth2/v3/userinfo";
-            HttpHeaders headers = new HttpHeaders();
-            headers.setBearerAuth(accessToken);
-            HttpEntity<String> entity = new HttpEntity<>(headers);
-
-            ResponseEntity<Map> userInfoResponse = restTemplate.exchange(userInfoUri, HttpMethod.GET, entity, Map.class);
-            Map<String, Object> userAttributes = userInfoResponse.getBody();
-            System.out.println("User info: " + userAttributes);
-
-            return ResponseEntity.ok("Authentication successful: " + userAttributes);
-
+            if (userServices.findByEmail(email) == null) {
+                userServices.saveGG(email);
+                System.out.println(userServices.findByEmail(email));
+                return ResponseEntity.status(HttpStatus.CREATED).body("Đăng ký thành công");
+            } else {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Email đã tồn tại");
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed: " + e.getMessage());
         }
+    }
+
+    private String getAccessToken(String code) {
+        RestTemplate restTemplate = new RestTemplate();
+        MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
+        requestBody.add("code", code);
+        requestBody.add("client_id", clientId);
+        requestBody.add("client_secret", clientSecret);
+        requestBody.add("redirect_uri", "http://localhost:8080/auth/google/callback");
+        requestBody.add("grant_type", "authorization_code");
+
+        ResponseEntity<Map> response = restTemplate.postForEntity("https://oauth2.googleapis.com/token", requestBody, Map.class);
+        return (String) response.getBody().get("access_token");
+    }
+
+    private Map<String, Object> getUserInfo(String accessToken) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(accessToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<Map> userInfoResponse = restTemplate.exchange("https://www.googleapis.com/oauth2/v3/userinfo", HttpMethod.GET, entity, Map.class);
+        return userInfoResponse.getBody();
     }
 }

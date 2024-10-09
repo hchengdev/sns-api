@@ -31,16 +31,12 @@ public class User implements UserDetails {
     private String email;
 
     @JsonProperty("password")
-    @Column(nullable = false, length = 255)
+    @Column(nullable = true, length = 255)
     private String password;
 
-    @JsonProperty("firstName")
+    @JsonProperty("name")
     @Column(nullable = true, length = 255)
-    private String firstName;
-
-    @JsonProperty("lastName")
-    @Column(nullable = true, length = 255)
-    private String lastName;
+    private String name;
 
     @JsonProperty("gender")
     @Enumerated(EnumType.STRING)
@@ -50,13 +46,13 @@ public class User implements UserDetails {
     @JsonProperty("profilePicture")
     private String profilePicture;
 
-    @JsonProperty("coverPicture")
-    @Column(nullable = true, length = 255)
-    private String coverPicture;
+    @JsonProperty("phone")
+    @Column(nullable = true)
+    private Integer phone;
 
     @JsonProperty("active")
     @Column(nullable = false)
-    private boolean active;
+    private Boolean active;
 
     @JsonProperty("biography")
     @Column(nullable = true, length = 255)
@@ -64,11 +60,15 @@ public class User implements UserDetails {
 
     @JsonProperty("birthday")
     @Column(nullable = true)
-    private String birthday;
+    private Date birthday;
 
     @JsonProperty("address")
     @Column(nullable = true, length = 255)
     private String address;
+
+    @JsonProperty("creationDate")
+    @Column(nullable = true)
+    private Date creationDate;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
@@ -108,5 +108,5 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return active;
     }
-    
+
 }

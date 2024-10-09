@@ -1,5 +1,6 @@
 package com.snsapi.user;
 
+import com.snsapi.exception.EmailAlreadyExistsException;
 import com.snsapi.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,7 +22,7 @@ public class UserServices {
         return userRepository.findAll(pageable);
     }
 
-    public User findById(Long id) throws UserNotFoundException {
+    public User findById(int id) throws UserNotFoundException {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
     }
@@ -30,35 +31,47 @@ public class UserServices {
         var user = User.builder()
                 .email(request.getEmail())
                 .password(encodePassword(request.getPassword()))
-                .firstName("clone")
-                .lastName("user")
+                .name(request.getName())
+                .phone(request.getPhoneNumber())
+                .birthday(request.getBirthday())
+                .profilePicture("anh-ech-meme-hai-huoc_102044545.jpg")
                 .active(request.getActive() != null ? request.getActive() : true)
                 .roles(new HashSet<>(Set.of(Role.ROLE_USER)))
                 .build();
         userRepository.save(user);
     }
 
-    public void update(Long id, UpdateUserRequest request) throws UserNotFoundException {
-        User user = findById(id);
-        var updatedUser = User.builder()
-                .email(request.getEmail() != null ? request.getEmail() : user.getEmail())
-                .password(request.getPassword() != null ? encodePassword(request.getPassword()) : user.getPassword())
-                .firstName(request.getFirstName() != null ? request.getFirstName() : user.getFirstName())
-                .lastName(request.getLastName() != null ? request.getLastName() : user.getLastName())
-                .gender(request.getGender() != null ? request.getGender() : user.getGender())
-                .profilePicture(request.getProfilePicture() != null ? request.getProfilePicture() : user.getProfilePicture())
-                .coverPicture(request.getCoverPicture() != null ? request.getCoverPicture() : user.getCoverPicture())
-                .active(request.getActive() != null ? request.getActive() : user.isActive())
-                .biography(request.getBiography() != null ? request.getBiography() : user.getBiography())
-                .birthday(request.getBirthday() != null ? request.getBirthday() : user.getBirthday())
-                .address(request.getAddress() != null ? request.getAddress() : user.getAddress())
-                .roles(request.getRoles() != null && !request.getRoles().isEmpty() ? new HashSet<>(request.getRoles()) : user.getRoles())
+    public void saveGG(String email) {
+        var user = User.builder()
+                .email(email)
+                .password(encodePassword("123456789"))
+                .name("clone username")
+                .active(true)
+                .roles(new HashSet<>(Set.of(Role.ROLE_USER)))
                 .build();
-
-        userRepository.save(updatedUser);
+        userRepository.save(user);
     }
 
-    public void delete(Long id) throws UserNotFoundException {
+
+    public void update(int id, UpdateUserRequest request) throws UserNotFoundException {
+        User user = findById(id);
+
+        Integer phoneNumber = request.getPhone();
+        user.setName(request.getName() != null ? request.getName() : user.getName());
+        user.setGender(request.getGender() != null ? request.getGender() : user.getGender());
+        user.setBiography(request.getBiography() != null ? request.getBiography() : user.getBiography());
+        user.setPhone(phoneNumber != null ? phoneNumber : user.getPhone());
+        user.setBirthday(request.getBirthday() != null ? request.getBirthday() : user.getBirthday());
+        user.setAddress(request.getAddress() != null ? request.getAddress() : user.getAddress());
+
+        if (request.getProfilePicture() != null) {
+            user.setProfilePicture(request.getProfilePicture());
+        }
+
+        userRepository.save(user);
+    }
+
+    public void delete(int id) throws UserNotFoundException {
         findById(id);
         userRepository.deleteById(id);
     }
