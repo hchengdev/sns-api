@@ -22,7 +22,9 @@ public class UserServices {
         return userRepository.findAll(pageable);
     }
 
+
     public User findById(int id) throws UserNotFoundException {
+
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
     }
@@ -31,15 +33,18 @@ public class UserServices {
         var user = User.builder()
                 .email(request.getEmail())
                 .password(encodePassword(request.getPassword()))
+
                 .name(request.getName())
                 .phone(request.getPhoneNumber())
                 .birthday(request.getBirthday())
                 .profilePicture("anh-ech-meme-hai-huoc_102044545.jpg")
                 .active(request.getActive() != null ? request.getActive() : true)
+
                 .roles(new HashSet<>(Set.of(Role.ROLE_USER)))
                 .build();
         userRepository.save(user);
     }
+
 
     public void saveGG(String email) {
         var user = User.builder()
@@ -48,6 +53,7 @@ public class UserServices {
                 .name("clone username")
                 .active(true)
                 .roles(new HashSet<>(Set.of(Role.ROLE_USER)))
+
                 .build();
         userRepository.save(user);
     }
@@ -71,7 +77,9 @@ public class UserServices {
         userRepository.save(user);
     }
 
+
     public void delete(int id) throws UserNotFoundException {
+
         findById(id);
         userRepository.deleteById(id);
     }
@@ -83,4 +91,6 @@ public class UserServices {
     private String encodePassword(String password) {
         return passwordEncoder.encode(password);
     }
+
 }
+

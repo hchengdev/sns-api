@@ -14,6 +14,8 @@ public class AddUserRequest {
     private String name;
     private Integer phoneNumber;
     private Date birthday;
+
     private Boolean active;
     private Set<Role> roles;
 }
+

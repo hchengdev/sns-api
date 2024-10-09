@@ -56,5 +56,6 @@ public class SecurityConfig {
                                 .requestMatchers("/api/v1/login", "/api/v1/register", "/v1/auth/google", "/auth/google/callback").permitAll()
                                 .requestMatchers("/api/product", "/api/v1/**").authenticated()
                 ).build();
+
     }
 }

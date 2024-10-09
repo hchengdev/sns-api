@@ -8,7 +8,9 @@ import java.util.Optional;
 public interface UserServiceInterface {
     List<User> findAll();
 
+
     User findById(int id);
+
 
     User save(User user);
 
@@ -17,4 +19,6 @@ public interface UserServiceInterface {
     UserDetails loadUserByUsername(String username);
 
     Optional<User> findByUserEmail(String username);
+
 }
+
