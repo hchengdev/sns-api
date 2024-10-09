@@ -36,41 +36,51 @@ public class PostService {
         return postRepository.findAll();
     }
 
-    public Post save(PostRequest postRequest, MultipartFile file) {
+    public Post save(Integer userId, String content, Post.VisibilityEnum visibility, MultipartFile file) {
         Post post = new Post();
-        post.setUser(userService.findById(postRequest.getUserId()));
-        post.setContent(postRequest.getContent());
-        post.setVisibility(postRequest.getVisibility());
+        post.setUser(userService.findById(userId));
+        post.setContent(content);
+        post.setVisibility(visibility);
 
         if (file != null && !file.isEmpty()) {
-            Media media = new Media();
-            media.setFileName(file.getOriginalFilename());
-
-            post.addMedia(media);
+            String savedFileName = saveFile(file);
+            if (savedFileName != null) {
+                Media media = new Media();
+                media.setFileName(savedFileName);
+                media.setMediaType(file.getContentType());
+                post.addMedia(media);
+            } else {
+                throw new RuntimeException("File upload failed");
+            }
         }
 
         return postRepository.save(post);
     }
 
-
-    public void likePost(Integer postId, Integer userId) {
+    public Post updatePost(Integer postId, String content, Post.VisibilityEnum visibility, MultipartFile file) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("Post không tồn tại."));
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Người dùng không tồn tại."));
+                .orElseThrow(() -> new IllegalArgumentException("Bài viết không tồn tại."));
 
-        post.getLikeUsers().add(user);
-        postRepository.save(post);
+        post.setContent(content);
+        post.setVisibility(visibility);
+
+        if (file != null && !file.isEmpty()) {
+            // Optionally, you may choose to handle replacing the existing media or just adding new media.
+            Media media = new Media();
+            media.setFileName(saveFile(file)); // Save new media file
+            media.setMediaType(file.getContentType());
+            media.setPost(post); // Establish the relationship with the post
+            mediaRepository.save(media);
+            post.addMedia(media); // Add the media to the post
+        }
+
+        return postRepository.save(post);
     }
 
-    public void unlikePost(Integer postId, Integer userId) {
+    public void deletePost(Integer postId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("Post không tồn tại."));
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Người dùng không tồn tại."));
-
-        post.getLikeUsers().remove(user);
-        postRepository.save(post);
+                .orElseThrow(() -> new IllegalArgumentException("Bài viết không tồn tại."));
+        postRepository.delete(post);
     }
 
     private String saveFile(MultipartFile file) {
@@ -85,33 +95,5 @@ public class PostService {
             e.printStackTrace();
             return null;
         }
-    }
-
-    public Post updatePost(Integer postId, PostRequest postRequest, MultipartFile file) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("Bài viết không tồn tại."));
-
-        post.setContent(postRequest.getContent());
-        post.setVisibility(postRequest.getVisibility());
-
-        if (postRequest.getFile() != null && !postRequest.getFile().isEmpty()) {
-            String imageFileName = saveFile(postRequest.getFile());
-            if (imageFileName != null) {
-                Media media = Media.builder()
-                        .fileName(imageFileName)
-                        .mediaType(postRequest.getFile().getContentType())
-                        .post(post)
-                        .build();
-                mediaRepository.save(media);
-                post.getMedia().add(media);
-            }
-        }
-        return postRepository.save(post);
-    }
-
-    public void deletePost(Integer postId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("Bài viết không tồn tại."));
-        postRepository.delete(post);
     }
 }

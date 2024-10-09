@@ -14,5 +14,4 @@ public class PostRequest {
     private Integer userId;
     private String content;
     private Post.VisibilityEnum visibility;
-    private MultipartFile file;
 }

@@ -58,12 +58,6 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/v1/**").authenticated()
 
-                        .anyRequest().authenticated()
-                )
-                .oauth2Login(oauth -> oauth
-                        .loginPage("/v1/auth/google")
-                        .defaultSuccessUrl("/profile", true)
-                        .failureUrl("/")
                 )
                 .build();
     }
