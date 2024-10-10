@@ -2,6 +2,7 @@ package com.snsapi.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.snsapi.post.Post;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
@@ -115,5 +116,6 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return active;
     }
+}
 
 
