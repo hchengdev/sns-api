@@ -2,19 +2,18 @@ package com.snsapi.user;
 
 import lombok.Builder;
 import lombok.Data;
-import org.apache.tomcat.util.http.fileupload.util.mime.MimeUtility;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 @Builder
-public class UserForm {
+public class FormUpdateRequest {
     private String name;
     private Gender gender;
-    private Integer phone;
+    private String phone;
     private String biography;
-    private Date birthday;
+    private LocalDate birthday;
     private String address;
     private Boolean active;
     private MultipartFile profilePicture;

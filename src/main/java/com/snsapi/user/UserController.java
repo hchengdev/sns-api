@@ -7,6 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDate;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -43,12 +46,33 @@ public class UserController {
     }
 
     @PutMapping("/api/v1/usersUpdate/{id}")
-    public ResponseEntity<String> updateUser(@PathVariable int id, @RequestBody UpdateUserRequest updateRequest) {
+    public ResponseEntity<String> updateUser(
+            @PathVariable int id,
+            @RequestParam String name,
+            @RequestParam String phone,
+            @RequestParam Gender gender,
+            @RequestParam LocalDate birthday,
+            @RequestParam String biography,
+            @RequestParam String address,
+            @RequestParam(required = false) MultipartFile profilePicture) {
         try {
+            FormUpdateRequest updateRequest = FormUpdateRequest.builder()
+                    .name(name)
+                    .phone(phone)
+                    .gender(gender)
+                    .birthday(birthday)
+                    .biography(biography)
+                    .address(address)
+                    .profilePicture(profilePicture)
+                    .build();
+
             userService.update(id, updateRequest);
             return ResponseEntity.ok("User updated successfully");
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(404).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("An error occurred while updating user");
         }
     }
+
 }

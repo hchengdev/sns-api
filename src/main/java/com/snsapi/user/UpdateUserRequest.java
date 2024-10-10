@@ -3,6 +3,7 @@ package com.snsapi.user;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Set;
 
@@ -10,10 +11,10 @@ import java.util.Set;
 @Builder
 public class UpdateUserRequest {
     private String name;
-    private Integer phone;
+    private String phone;
     private Gender gender;
     private String biography;
-    private Date birthday;
+    private LocalDate birthday;
     private String address;
     private String profilePicture;
 }

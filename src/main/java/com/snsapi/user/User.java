@@ -1,5 +1,6 @@
 package com.snsapi.user;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -12,6 +13,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Data
@@ -48,7 +50,7 @@ public class User implements UserDetails {
 
     @JsonProperty("phone")
     @Column(nullable = true)
-    private Integer phone;
+    private String phone;
 
     @JsonProperty("active")
     @Column(nullable = false)
@@ -59,8 +61,10 @@ public class User implements UserDetails {
     private String biography;
 
     @JsonProperty("birthday")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @Column(nullable = true)
-    private Date birthday;
+    private LocalDate birthday;
+
 
     @JsonProperty("address")
     @Column(nullable = true, length = 255)
@@ -68,7 +72,7 @@ public class User implements UserDetails {
 
     @JsonProperty("creationDate")
     @Column(nullable = true)
-    private Date creationDate;
+    private LocalDate creationDate;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
