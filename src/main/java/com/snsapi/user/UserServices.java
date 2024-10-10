@@ -36,6 +36,16 @@ public class UserServices {
                 .orElseThrow(() -> new UserNotFoundException(id));
     }
 
+    public UpdateUserRequest informationUser(User request) {
+        return UpdateUserRequest.builder()
+                .name(request.getName())
+                .address(request.getAddress())
+                .gender(request.getGender())
+                .biography(request.getBiography())
+                .birthday(request.getBirthday())
+                .profilePicture(request.getProfilePicture()).build();
+    }
+
     public void save(AddUserRequest request) {
         Date date = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");

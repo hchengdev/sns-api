@@ -45,6 +45,13 @@ public class UserController {
         return ResponseEntity.ok(userService.findById(id));
     }
 
+    @GetMapping("api/v1/me/{id}")
+    public ResponseEntity<UpdateUserRequest> informationUser(@PathVariable int id) {
+        User user = userService.findById(id);
+
+        return ResponseEntity.ok(userService.informationUser(user));
+    }
+
     @PutMapping("/api/v1/{id}")
     public ResponseEntity<String> updateUser(
             @PathVariable int id,
