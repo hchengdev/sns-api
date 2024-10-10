@@ -1,5 +1,6 @@
 package com.snsapi.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.snsapi.post.Post;
 import jakarta.persistence.*;
@@ -36,7 +37,7 @@ public class User implements UserDetails {
     private String password;
 
     @JsonProperty("firstName")
-    @Column(nullable = false, length = 255)
+    @Column(nullable = true, length = 255)
     private String firstName;
 
     @JsonProperty("lastName")
@@ -52,7 +53,7 @@ public class User implements UserDetails {
     private String profilePicture;
 
     @JsonProperty("coverPicture")
-    @Column(nullable = false, length = 255)
+    @Column(nullable = true, length = 255)
     private String coverPicture;
 
     @JsonProperty("active")
@@ -113,3 +114,5 @@ public class User implements UserDetails {
         return active;
     }
 }
+
+

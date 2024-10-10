@@ -21,7 +21,9 @@ public class UserServices {
         return userRepository.findAll(pageable);
     }
 
-    public User findById(Long id) throws UserNotFoundException {
+
+    public User findById(Integer id) throws UserNotFoundException {
+
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
     }
@@ -30,24 +32,21 @@ public class UserServices {
         var user = User.builder()
                 .email(request.getEmail())
                 .password(encodePassword(request.getPassword()))
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .gender(request.getGender())
-                .profilePicture(request.getProfilePicture())
-                .coverPicture(request.getCoverPicture())
+
+                .firstName("clone")
+                .lastName("user")
                 .active(request.getActive() != null ? request.getActive() : true)
-                .biography(request.getBiography())
-                .birthday(request.getBirthday())
-                .address(request.getAddress())
+
                 .roles(new HashSet<>(Set.of(Role.ROLE_USER)))
                 .build();
         userRepository.save(user);
     }
 
-    public void save(Long id, AddUserRequest request) throws UserNotFoundException {
+
+    public void update(Integer id, UpdateUserRequest request) throws UserNotFoundException {
         User user = findById(id);
         var updatedUser = User.builder()
-                .id(user.getId())
+
                 .email(request.getEmail() != null ? request.getEmail() : user.getEmail())
                 .password(request.getPassword() != null ? encodePassword(request.getPassword()) : user.getPassword())
                 .firstName(request.getFirstName() != null ? request.getFirstName() : user.getFirstName())
@@ -65,7 +64,9 @@ public class UserServices {
         userRepository.save(updatedUser);
     }
 
-    public void delete(Long id) throws UserNotFoundException {
+
+    public void delete(Integer id) throws UserNotFoundException {
+
         findById(id);
         userRepository.deleteById(id);
     }
@@ -77,4 +78,6 @@ public class UserServices {
     private String encodePassword(String password) {
         return passwordEncoder.encode(password);
     }
+
 }
+

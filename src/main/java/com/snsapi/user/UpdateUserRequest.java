@@ -7,7 +7,7 @@ import java.util.Set;
 
 @Data
 @Builder
-public class UserRequest {
+public class UpdateUserRequest {
     private Integer id;
     private String email;
     private String password;
