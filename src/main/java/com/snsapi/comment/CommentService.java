@@ -19,11 +19,12 @@
 //    private final CommentRepository commentRepository;
 //    private final UserRepository userRepository;
 //
-//    public List<Comment> getAllCommentsByPostId(Long postId) {
+
+//    public List<Comment> getAllCommentsByPostId(Integer postId) {
 //        return commentRepository.findByPostId(postId);
 //    }
 //
-//    public Comment createComment(Long postId, Long userId, String content) {
+//    public Comment createComment(Integer postId, Integer userId, String content) {
 //        Post post = postRepository.findById(postId)
 //                .orElseThrow(() -> new IllegalArgumentException("Bài viết không tồn tại."));
 //        User user = userRepository.findById(userId)
@@ -39,12 +40,14 @@
 //    }
 //
 //    public void deleteComment(Long commentId) {
+//    public void deleteComment(Integer commentId) {
 //        Comment comment = commentRepository.findById(commentId)
 //                .orElseThrow(() -> new IllegalArgumentException("Comment không tồn tại."));
 //        commentRepository.delete(comment);
 //    }
 //
-//    public void likeComment(Long commentId, Long userId) {
+
+//    public void likeComment(Integer commentId, Integer userId) {
 //        Comment comment = commentRepository.findById(commentId)
 //                .orElseThrow(() -> new IllegalArgumentException("Comment không tồn tại."));
 //        User user = userRepository.findById(userId)
@@ -54,7 +57,8 @@
 //        commentRepository.save(comment);
 //    }
 //
-//    public void unlikeComment(Long commentId, Long userId) {
+
+//    public void unlikeComment(Integer commentId, Integer userId) {
 //        Comment comment = commentRepository.findById(commentId)
 //                .orElseThrow(() -> new IllegalArgumentException("Comment không tồn tại."));
 //        User user = userRepository.findById(userId)

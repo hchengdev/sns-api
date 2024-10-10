@@ -32,6 +32,7 @@ public class UserServices {
     }
 
     public User findById(int id) throws UserNotFoundException {
+
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
     }
@@ -116,4 +117,6 @@ public class UserServices {
     private String encodePassword(String password) {
         return passwordEncoder.encode(password);
     }
+
 }
+
