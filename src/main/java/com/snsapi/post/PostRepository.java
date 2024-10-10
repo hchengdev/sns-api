@@ -18,4 +18,8 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             "FROM Post p JOIN p.likeUsers u " +
             "WHERE p.id = :postId AND u.id = :userId")
     boolean existsByPostIdAndUserId(Integer postId, Integer userId);
+
+    @Query("SELECT p FROM Post p WHERE p.content LIKE %:content%")
+    List<Post> findByContent(String content);
+    List<Post> findByUserId(Integer userId);
 }

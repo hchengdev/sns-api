@@ -65,13 +65,12 @@ public class PostService {
         post.setVisibility(visibility);
 
         if (file != null && !file.isEmpty()) {
-            // Optionally, you may choose to handle replacing the existing media or just adding new media.
             Media media = new Media();
-            media.setFileName(saveFile(file)); // Save new media file
+            media.setFileName(saveFile(file));
             media.setMediaType(file.getContentType());
-            media.setPost(post); // Establish the relationship with the post
+            media.setPost(post);
             mediaRepository.save(media);
-            post.addMedia(media); // Add the media to the post
+            post.addMedia(media);
         }
 
         return postRepository.save(post);
@@ -95,5 +94,13 @@ public class PostService {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public List<Post> searchPostByContent(String content) {
+        return postRepository.findByContent(content);
+    }
+
+    public List<Post> findAllPostsByUserId(Integer userId) {
+        return postRepository.findByUserId(userId);
     }
 }

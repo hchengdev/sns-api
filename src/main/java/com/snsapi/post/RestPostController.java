@@ -9,12 +9,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/posts")
-@CrossOrigin("*")
+@CrossOrigin(origins = "http://localhost:8081")
 @RequiredArgsConstructor
 public class RestPostController {
 
@@ -147,5 +149,55 @@ public class RestPostController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    // GET: Tìm kiếm bài post gần đúng theo content
+    @GetMapping("/me/posts")
+    public ResponseEntity<Map<String, List<PostDTO>>> searchPosts(
+            @RequestParam("content") String content,
+            @RequestHeader("Authorization") String token) {
+
+        List<Post> posts = postService.searchPostByContent(content);
+
+        List<PostDTO> postDTOs = posts.stream()
+                .map(post -> {
+                    PostDTO postDTO = new PostDTO();
+                    postDTO.setId(post.getId());
+                    postDTO.setUserId(post.getUser().getId());
+                    postDTO.setContent(post.getContent());
+                    postDTO.setVisibility(post.getVisibility());
+                    postDTO.setCreatedAt(post.getCreatedAt());
+                    postDTO.setUpdatedAt(post.getUpdatedAt());
+
+                    List<MediaDTO> mediaDTOs = post.getMedia().stream()
+                            .map(media -> {
+                                MediaDTO mediaDTO = new MediaDTO();
+                                mediaDTO.setId(media.getId());
+                                mediaDTO.setPostId(post.getId());
+                                mediaDTO.setUrl(media.getUrl());
+                                return mediaDTO;
+                            })
+                            .collect(Collectors.toList());
+                    postDTO.setMedia(mediaDTOs);
+
+                    List<LikeDTO> likeDTOs = post.getLikeUsers().stream()
+                            .map(user -> {
+                                LikeDTO likeDTO = new LikeDTO();
+                                likeDTO.setId(user.getId());
+                                likeDTO.setFirstName(user.getFirstName());
+                                likeDTO.setLastName(user.getLastName());
+                                return likeDTO;
+                            })
+                            .collect(Collectors.toList());
+                    postDTO.setLike(likeDTOs);
+
+                    return postDTO;
+                })
+                .collect(Collectors.toList());
+
+        Map<String, List<PostDTO>> response = new HashMap<>();
+        response.put("posts", postDTOs);
+
+        return ResponseEntity.ok(response);
     }
 }
