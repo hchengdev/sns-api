@@ -39,6 +39,7 @@ public class UserServices {
     public UpdateUserRequest informationUser(User request) {
         return UpdateUserRequest.builder()
                 .name(request.getName())
+                .phone(request.getPhone())
                 .address(request.getAddress())
                 .gender(request.getGender())
                 .biography(request.getBiography())

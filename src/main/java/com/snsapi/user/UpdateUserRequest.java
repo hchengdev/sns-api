@@ -1,11 +1,11 @@
 package com.snsapi.user;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.Set;
+
 
 @Data
 @Builder
@@ -14,6 +14,7 @@ public class UpdateUserRequest {
     private String phone;
     private Gender gender;
     private String biography;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate birthday;
     private String address;
     private String profilePicture;
