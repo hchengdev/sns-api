@@ -72,7 +72,8 @@ public class User implements UserDetails {
     @Column(nullable = true, length = 255)
     private String address;
 
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     List<Post> posts = new ArrayList<>();
 
     @ElementCollection(fetch = FetchType.EAGER)

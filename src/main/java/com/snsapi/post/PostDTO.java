@@ -3,6 +3,7 @@ package com.snsapi.post;
 import com.snsapi.like.LikeDTO;
 import com.snsapi.media.MediaDTO;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -11,23 +12,22 @@ public class PostDTO {
     private Integer userId;
     private String content;
     private Post.VisibilityEnum visibility;
-    private String image;
     private List<MediaDTO> media;
-    private List<LikeDTO> like;
-    private Date createdAt;
-    private Date updatedAt;
+    private List<LikeDTO> likes;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public PostDTO() {
     }
 
-    public PostDTO(Integer id, Integer userId, String content, Post.VisibilityEnum visibility, String image, List<MediaDTO> media, List<LikeDTO> like, Date createdAt, Date updatedAt) {
+    public PostDTO(Integer id, Integer userId, String content, Post.VisibilityEnum visibility,
+                   List<MediaDTO> media, List<LikeDTO> likes, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.userId = userId;
         this.content = content;
         this.visibility = visibility;
-        this.image = image;
         this.media = media;
-        this.like = like;
+        this.likes = likes; // Sửa tên biến ở đây
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -64,14 +64,6 @@ public class PostDTO {
         this.visibility = visibility;
     }
 
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
-    }
-
     public List<MediaDTO> getMedia() {
         return media;
     }
@@ -80,27 +72,27 @@ public class PostDTO {
         this.media = media;
     }
 
-    public List<LikeDTO> getLike() {
-        return like;
+    public List<LikeDTO> getLikes() { // Sửa getter để trả về "likes"
+        return likes;
     }
 
-    public void setLike(List<LikeDTO> like) {
-        this.like = like;
+    public void setLikes(List<LikeDTO> likes) { // Sửa setter để nhận "likes"
+        this.likes = likes;
     }
 
-    public Date getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Date getUpdatedAt() {
+    public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(Date updatedAt) {
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 }

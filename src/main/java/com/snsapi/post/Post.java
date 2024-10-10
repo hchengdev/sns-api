@@ -14,6 +14,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Data
@@ -43,15 +44,13 @@ public class Post {
     @Column(name = "visibility")
     private VisibilityEnum visibility;
 
-    @Temporal(TemporalType.TIMESTAMP)
     @CreatedDate
     @Column(name = "created_at")
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
-    @Temporal(TemporalType.TIMESTAMP)
     @LastModifiedDate
     @Column(name = "updated_at")
-    private Date updatedAt;
+    private LocalDateTime updatedAt;
 
     @Size(max = 4, message = "Tối đa 4 ảnh.")
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "post")
