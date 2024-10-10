@@ -30,26 +30,6 @@ public class UserService implements UserServiceInterface, UserDetailsService {
                 .build();
     }
 
-    public static User build(Optional<User> optionalUser) {
-        User user = optionalUser.orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
-        return User.builder()
-                .email(user.getEmail())
-                .password(user.getPassword())
-                .roles(user.getRoles())
-                .active(user.isEnabled())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .gender(user.getGender())
-                .profilePicture(user.getProfilePicture())
-                .coverPicture(user.getCoverPicture())
-                .biography(user.getBiography())
-                .birthday(user.getBirthday())
-                .address(user.getAddress())
-                .build();
-    }
-
-
     @Autowired
     private UserRepository userRepository;
 
@@ -86,8 +66,5 @@ public class UserService implements UserServiceInterface, UserDetailsService {
     public Optional<User> findByUserEmail(String email) {
         return userRepository.findByEmail(email);
     }
-
-
-
 }
 
