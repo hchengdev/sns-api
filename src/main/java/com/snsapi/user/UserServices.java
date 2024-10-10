@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -107,6 +108,15 @@ public class UserServices {
     public void delete(int id) throws UserNotFoundException {
         findById(id);
         userRepository.deleteById(id);
+    }
+
+    public void updatePassword(int id, String newPassword, String oldPassword) {
+        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        if (passwordEncoder.matches(oldPassword, user.getPassword())) {
+            user.setPassword(encodePassword(newPassword));
+        }
+        userRepository.save(user);
     }
 
     public Optional<User> findByEmail(String email) {

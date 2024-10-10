@@ -62,7 +62,6 @@ public class UserController {
         }
     }
 
-
     @PutMapping("/api/v1/me")
     public ResponseEntity<String> updateUser(
             @RequestHeader("Authorization") String token,
@@ -94,4 +93,18 @@ public class UserController {
         }
     }
 
+    @PutMapping("/api/v1/me/password")
+    public ResponseEntity<String> updatePassword(
+            @RequestHeader("Authorization") String token,
+            @RequestParam String currentPassword,
+            @RequestParam String newPassword) {
+        try {
+            token = token.startsWith("Bearer") ? token.substring(7) : token;
+            int id = jwtService.getUserIdFromToken(token);
+            userService.updatePassword(id, newPassword, currentPassword);
+            return ResponseEntity.ok("user updated successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
+        }
+    }
 }
