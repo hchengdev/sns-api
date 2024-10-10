@@ -4,6 +4,7 @@ import com.snsapi.post.Post;
 import com.snsapi.user.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,7 +37,8 @@ public class Comment {
     private User user;
 
     @NotBlank(message = "Nội dung bình luận không được để trống.")
-    @Column(name = "content") // TODO: validate do dai (250)
+    @Size(max = 255, message = "Nội dung bình luận không được vượt quá 255 kí tự")
+    @Column(name = "content")
     private String content;
 
     @CreatedDate
