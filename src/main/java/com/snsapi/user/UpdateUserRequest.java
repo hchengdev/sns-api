@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.util.Date;
+
 import java.util.Set;
 
 @Data
@@ -18,3 +19,4 @@ public class UpdateUserRequest {
     private String address;
     private String profilePicture;
 }
+

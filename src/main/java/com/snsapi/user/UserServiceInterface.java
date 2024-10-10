@@ -10,6 +10,7 @@ public interface UserServiceInterface {
 
     User findById(int id);
 
+
     User save(User user);
 
     void delete(User user);
@@ -17,4 +18,6 @@ public interface UserServiceInterface {
     UserDetails loadUserByUsername(String username);
 
     Optional<User> findByUserEmail(String username);
+
 }
+

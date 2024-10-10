@@ -18,3 +18,4 @@ public class AddUserRequest {
     private Boolean active;
     private Set<Role> roles;
 }
+
