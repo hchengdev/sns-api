@@ -39,13 +39,13 @@ public class UserController {
         }
     }
 
-    @GetMapping("api/v1/user/{id}")
+    @GetMapping("api/v1/{id}")
     public ResponseEntity<User> getUserById(@PathVariable int id) {
         userService.findById(id);
         return ResponseEntity.ok(userService.findById(id));
     }
 
-    @PutMapping("/api/v1/usersUpdate/{id}")
+    @PutMapping("/api/v1/{id}")
     public ResponseEntity<String> updateUser(
             @PathVariable int id,
             @RequestParam String name,
