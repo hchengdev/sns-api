@@ -136,4 +136,6 @@ public class AuthController {
         ResponseEntity<Map> userInfoResponse = restTemplate.exchange("https://www.googleapis.com/oauth2/v3/userinfo", HttpMethod.GET, entity, Map.class);
         return userInfoResponse.getBody();
     }
+
 }
+

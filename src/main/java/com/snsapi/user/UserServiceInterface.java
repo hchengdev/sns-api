@@ -17,4 +17,6 @@ public interface UserServiceInterface {
     UserDetails loadUserByUsername(String username);
 
     Optional<User> findByUserEmail(String username);
+
 }
+

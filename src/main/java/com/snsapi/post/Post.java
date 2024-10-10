@@ -26,7 +26,7 @@ public class Post {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -35,6 +35,9 @@ public class Post {
     @NotBlank(message = "Nội dung không được để trống.")
     @Column(name = "content")
     private String content;
+
+    @Column(name = "image")
+    private String image;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "visibility")
@@ -69,5 +72,27 @@ public class Post {
         PRIVATE,
         FRIENDS_ONLY,
         PUBLIC
+    }
+
+    public void addMedia(Media mediaItem) {
+        if (mediaItem != null) {
+            mediaItem.setPost(this);
+            this.media.add(mediaItem);
+        }
+    }
+
+    public void addComment(Comment comment) {
+        if (comment != null) {
+            comment.setPost(this);
+            this.comments.add(comment);
+        }
+    }
+
+    public void likePost(User user) {
+        this.likeUsers.add(user);
+    }
+
+    public void unlikePost(User user) {
+        this.likeUsers.remove(user);
     }
 }

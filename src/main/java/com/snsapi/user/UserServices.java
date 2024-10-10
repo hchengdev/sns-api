@@ -62,6 +62,7 @@ public class UserServices {
                 .name("clone username")
                 .active(true)
                 .roles(new HashSet<>(Set.of(Role.ROLE_USER)))
+
                 .build();
         userRepository.save(user);
     }
@@ -94,6 +95,7 @@ public class UserServices {
     }
 
     public void delete(int id) throws UserNotFoundException {
+
         findById(id);
         userRepository.deleteById(id);
     }
@@ -105,4 +107,6 @@ public class UserServices {
     private String encodePassword(String password) {
         return passwordEncoder.encode(password);
     }
+
 }
+

@@ -18,3 +18,4 @@ public class UpdateUserRequest {
     private String address;
     private String profilePicture;
 }
+
