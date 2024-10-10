@@ -31,6 +31,6 @@ public class Media {
     private String fileName;
 
     public String getUrl() {
-        return "/media/" + fileName;
+        return "/image/" + fileName;
     }
 }
