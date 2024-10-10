@@ -15,6 +15,7 @@ public class UserService implements UserServiceInterface, UserDetailsService {
         User user = optionalUser.orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         return User.builder()
+                .id(user.getId())
                 .email(user.getEmail())
                 .password(user.getPassword())
                 .roles(user.getRoles())
