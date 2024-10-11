@@ -12,7 +12,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -42,9 +43,12 @@ public class Comment {
     private String content;
 
     @CreatedDate
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at")
-    private Date createdAt;
+    private LocalDateTime createdAt;
+
+    @CreatedDate
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     @ManyToMany
     @JoinTable(
@@ -53,6 +57,7 @@ public class Comment {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private Set<User> likeUsers;
+
 
 //    TODO: uncomment later
 //    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)

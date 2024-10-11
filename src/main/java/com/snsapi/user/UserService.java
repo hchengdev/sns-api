@@ -11,7 +11,6 @@ import java.util.Optional;
 
 @Service
 public class UserService implements UserServiceInterface, UserDetailsService {
-
     public static User build(Optional<User> optionalUser) {
         User user = optionalUser.orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
@@ -21,17 +20,15 @@ public class UserService implements UserServiceInterface, UserDetailsService {
                 .password(user.getPassword())
                 .roles(user.getRoles())
                 .active(user.isEnabled())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
+                .name(user.getName())
                 .gender(user.getGender())
                 .profilePicture(user.getProfilePicture())
-                .coverPicture(user.getCoverPicture())
+                .phone(user.getPhone())
                 .biography(user.getBiography())
                 .birthday(user.getBirthday())
                 .address(user.getAddress())
                 .build();
     }
-
 
     @Autowired
     private UserRepository userRepository;
@@ -42,7 +39,7 @@ public class UserService implements UserServiceInterface, UserDetailsService {
     }
 
     @Override
-    public User findById(Integer id) {
+    public User findById(int id) {
 
         return userRepository.findById(id).orElse(null);
     }
@@ -61,7 +58,6 @@ public class UserService implements UserServiceInterface, UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Optional<User> user = userRepository.findByEmail(email);
-
         return build(user);
 
     }
@@ -70,8 +66,5 @@ public class UserService implements UserServiceInterface, UserDetailsService {
     public Optional<User> findByUserEmail(String email) {
         return userRepository.findByEmail(email);
     }
-
-
-
 }
 

@@ -2,16 +2,19 @@ package com.snsapi.post;
 
 import com.snsapi.like.LikeDTO;
 import com.snsapi.media.MediaDTO;
+import com.snsapi.user.User;
+import com.snsapi.user.UserServices;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
-import java.util.HashMap;
+import java.security.Principal;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -21,6 +24,7 @@ import java.util.stream.Collectors;
 public class RestPostController {
 
     private final PostService postService;
+    private final UserServices userServices;
 
     @GetMapping
     public ResponseEntity<List<PostDTO>> findAllPosts() {
@@ -31,7 +35,7 @@ public class RestPostController {
                 .map(post -> {
                     PostDTO postDTO = new PostDTO();
                     postDTO.setId(post.getId());
-                    postDTO.setUserId(post.getUser().getId());  // Thêm trường userId
+                    postDTO.setUserId(post.getUser().getId());
                     postDTO.setContent(post.getContent());
                     postDTO.setVisibility(post.getVisibility());
                     postDTO.setCreatedAt(post.getCreatedAt());
@@ -42,11 +46,10 @@ public class RestPostController {
                         mediaDTO.setUrl(media.getUrl());
                         return mediaDTO;
                     }).collect(Collectors.toList()));
-                    postDTO.setLike(post.getLikeUsers().stream().map(user -> {
+                    postDTO.setLikes(post.getLikeUsers().stream().map(user -> {
                         LikeDTO likeDTO = new LikeDTO();
                         likeDTO.setId(user.getId());
-                        likeDTO.setFirstName(user.getFirstName());
-                        likeDTO.setLastName(user.getLastName());
+                        likeDTO.setName(user.getName());
                         return likeDTO;
                     }).collect(Collectors.toList()));
 
@@ -86,11 +89,10 @@ public class RestPostController {
                 mediaDTO.setUrl(media.getUrl());
                 return mediaDTO;
             }).collect(Collectors.toList()));
-            postDTO.setLike(savedPost.getLikeUsers().stream().map(user -> {
+            postDTO.setLikes(savedPost.getLikeUsers().stream().map(user -> {
                 LikeDTO likeDTO = new LikeDTO();
                 likeDTO.setId(user.getId());
-                likeDTO.setFirstName(user.getFirstName());
-                likeDTO.setLastName(user.getLastName());
+                likeDTO.setName(user.getName());
                 return likeDTO;
             }).collect(Collectors.toList()));
 
@@ -123,11 +125,10 @@ public class RestPostController {
                     mediaDTO.setUrl(media.getUrl());
                     return mediaDTO;
                 }).collect(Collectors.toList()));
-                postDTO.setLike(updatedPost.getLikeUsers().stream().map(user -> {
+                postDTO.setLikes(updatedPost.getLikeUsers().stream().map(user -> {
                     LikeDTO likeDTO = new LikeDTO();
                     likeDTO.setId(user.getId());
-                    likeDTO.setFirstName(user.getFirstName());
-                    likeDTO.setLastName(user.getLastName());
+                    likeDTO.setName(user.getName());
                     return likeDTO;
                 }).collect(Collectors.toList()));
 
@@ -151,53 +152,30 @@ public class RestPostController {
         }
     }
 
-    // GET: Tìm kiếm bài post gần đúng theo content
-    @GetMapping("/me/posts")
-    public ResponseEntity<Map<String, List<PostDTO>>> searchPosts(
-            @RequestParam("content") String content,
-            @RequestHeader("Authorization") String token) {
+    @PutMapping("/{id}/likes")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
+    public ResponseEntity<Void> likePost(@PathVariable Integer id,
+                                         Principal principal) {
+        String email = principal.getName();
+        Optional<User> user = userServices.findByEmail(email);
+        postService.likePost(id, user.get().getId());
+        return ResponseEntity.ok().build();
+    }
 
-        List<Post> posts = postService.searchPostByContent(content);
+    @DeleteMapping("/{id}/likes")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
+    public ResponseEntity<Void> unlikePost(@PathVariable Integer id,
+                                           Principal principal) {
+        String email = principal.getName();
+        Optional<User> user = userServices.findByEmail(email);
+        postService.unlikePost(id, user.get().getId());
+        return ResponseEntity.ok().build();
+    }
 
-        List<PostDTO> postDTOs = posts.stream()
-                .map(post -> {
-                    PostDTO postDTO = new PostDTO();
-                    postDTO.setId(post.getId());
-                    postDTO.setUserId(post.getUser().getId());
-                    postDTO.setContent(post.getContent());
-                    postDTO.setVisibility(post.getVisibility());
-                    postDTO.setCreatedAt(post.getCreatedAt());
-                    postDTO.setUpdatedAt(post.getUpdatedAt());
-
-                    List<MediaDTO> mediaDTOs = post.getMedia().stream()
-                            .map(media -> {
-                                MediaDTO mediaDTO = new MediaDTO();
-                                mediaDTO.setId(media.getId());
-                                mediaDTO.setPostId(post.getId());
-                                mediaDTO.setUrl(media.getUrl());
-                                return mediaDTO;
-                            })
-                            .collect(Collectors.toList());
-                    postDTO.setMedia(mediaDTOs);
-
-                    List<LikeDTO> likeDTOs = post.getLikeUsers().stream()
-                            .map(user -> {
-                                LikeDTO likeDTO = new LikeDTO();
-                                likeDTO.setId(user.getId());
-                                likeDTO.setFirstName(user.getFirstName());
-                                likeDTO.setLastName(user.getLastName());
-                                return likeDTO;
-                            })
-                            .collect(Collectors.toList());
-                    postDTO.setLike(likeDTOs);
-
-                    return postDTO;
-                })
-                .collect(Collectors.toList());
-
-        Map<String, List<PostDTO>> response = new HashMap<>();
-        response.put("posts", postDTOs);
-
-        return ResponseEntity.ok(response);
+    @GetMapping("/{id}/likes/count")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
+    public ResponseEntity<Integer> countLikes(@PathVariable Integer id) {
+        int likeCount = postService.countLikes(id);
+        return ResponseEntity.ok(likeCount);
     }
 }
