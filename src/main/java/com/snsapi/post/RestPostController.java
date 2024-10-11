@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,15 +35,15 @@ public class RestPostController {
                     postDTO.setUserId(post.getUser().getId());  // Thêm trường userId
                     postDTO.setContent(post.getContent());
                     postDTO.setVisibility(post.getVisibility());
-                    postDTO.setCreatedAt(post.getCreatedAt());
-                    postDTO.setUpdatedAt(post.getUpdatedAt());
+                    postDTO.setCreatedAt(post.getCreatedAt()); // now LocalDateTime
+                    postDTO.setUpdatedAt(post.getUpdatedAt()); // now LocalDateTime
                     postDTO.setMedia(post.getMedia().stream().map(media -> {
                         MediaDTO mediaDTO = new MediaDTO();
                         mediaDTO.setId(media.getId());
                         mediaDTO.setUrl(media.getUrl());
                         return mediaDTO;
                     }).collect(Collectors.toList()));
-                    postDTO.setLike(post.getLikeUsers().stream().map(user -> {
+                    postDTO.setLikes(post.getLikeUsers().stream().map(user -> {
                         LikeDTO likeDTO = new LikeDTO();
                         likeDTO.setId(user.getId());
                         likeDTO.setFirstName(user.getFirstName());
@@ -78,15 +79,15 @@ public class RestPostController {
             postDTO.setUserId(savedPost.getUser().getId());
             postDTO.setContent(savedPost.getContent());
             postDTO.setVisibility(savedPost.getVisibility());
-            postDTO.setCreatedAt(savedPost.getCreatedAt());
-            postDTO.setUpdatedAt(savedPost.getUpdatedAt());
+            postDTO.setCreatedAt(savedPost.getCreatedAt()); // now LocalDateTime
+            postDTO.setUpdatedAt(savedPost.getUpdatedAt()); // now LocalDateTime
             postDTO.setMedia(savedPost.getMedia().stream().map(media -> {
                 MediaDTO mediaDTO = new MediaDTO();
                 mediaDTO.setId(media.getId());
                 mediaDTO.setUrl(media.getUrl());
                 return mediaDTO;
             }).collect(Collectors.toList()));
-            postDTO.setLike(savedPost.getLikeUsers().stream().map(user -> {
+            postDTO.setLikes(savedPost.getLikeUsers().stream().map(user -> {
                 LikeDTO likeDTO = new LikeDTO();
                 likeDTO.setId(user.getId());
                 likeDTO.setFirstName(user.getFirstName());
@@ -115,15 +116,15 @@ public class RestPostController {
                 postDTO.setUserId(updatedPost.getUser().getId());
                 postDTO.setContent(updatedPost.getContent());
                 postDTO.setVisibility(updatedPost.getVisibility());
-                postDTO.setCreatedAt(updatedPost.getCreatedAt());
-                postDTO.setUpdatedAt(updatedPost.getUpdatedAt());
+                postDTO.setCreatedAt(updatedPost.getCreatedAt()); // now LocalDateTime
+                postDTO.setUpdatedAt(updatedPost.getUpdatedAt()); // now LocalDateTime
                 postDTO.setMedia(updatedPost.getMedia().stream().map(media -> {
                     MediaDTO mediaDTO = new MediaDTO();
                     mediaDTO.setId(media.getId());
                     mediaDTO.setUrl(media.getUrl());
                     return mediaDTO;
                 }).collect(Collectors.toList()));
-                postDTO.setLike(updatedPost.getLikeUsers().stream().map(user -> {
+                postDTO.setLikes(updatedPost.getLikeUsers().stream().map(user -> {
                     LikeDTO likeDTO = new LikeDTO();
                     likeDTO.setId(user.getId());
                     likeDTO.setFirstName(user.getFirstName());
@@ -151,53 +152,35 @@ public class RestPostController {
         }
     }
 
-    // GET: Tìm kiếm bài post gần đúng theo content
-    @GetMapping("/me/posts")
-    public ResponseEntity<Map<String, List<PostDTO>>> searchPosts(
-            @RequestParam("content") String content,
-            @RequestHeader("Authorization") String token) {
-
-        List<Post> posts = postService.searchPostByContent(content);
-
-        List<PostDTO> postDTOs = posts.stream()
-                .map(post -> {
-                    PostDTO postDTO = new PostDTO();
-                    postDTO.setId(post.getId());
-                    postDTO.setUserId(post.getUser().getId());
-                    postDTO.setContent(post.getContent());
-                    postDTO.setVisibility(post.getVisibility());
-                    postDTO.setCreatedAt(post.getCreatedAt());
-                    postDTO.setUpdatedAt(post.getUpdatedAt());
-
-                    List<MediaDTO> mediaDTOs = post.getMedia().stream()
-                            .map(media -> {
-                                MediaDTO mediaDTO = new MediaDTO();
-                                mediaDTO.setId(media.getId());
-                                mediaDTO.setPostId(post.getId());
-                                mediaDTO.setUrl(media.getUrl());
-                                return mediaDTO;
-                            })
-                            .collect(Collectors.toList());
-                    postDTO.setMedia(mediaDTOs);
-
-                    List<LikeDTO> likeDTOs = post.getLikeUsers().stream()
-                            .map(user -> {
-                                LikeDTO likeDTO = new LikeDTO();
-                                likeDTO.setId(user.getId());
-                                likeDTO.setFirstName(user.getFirstName());
-                                likeDTO.setLastName(user.getLastName());
-                                return likeDTO;
-                            })
-                            .collect(Collectors.toList());
-                    postDTO.setLike(likeDTOs);
-
-                    return postDTO;
-                })
-                .collect(Collectors.toList());
-
-        Map<String, List<PostDTO>> response = new HashMap<>();
-        response.put("posts", postDTOs);
-
-        return ResponseEntity.ok(response);
-    }
+    // Uncomment this method if you want to use it
+//    @GetMapping("/me/posts")
+//    public ResponseEntity<Map<String, List<PostDTO>>> searchPosts(
+//            @RequestParam("content") String content,
+//            @RequestHeader("Authorization") String token) {
+//
+//        // Tìm kiếm bài post theo nội dung
+//        List<Post> posts = postService.searchPostByContent(content);
+//
+//        // Nếu không tìm thấy bài post nào
+//        if (posts.isEmpty()) {
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//        Map<String, List<PostDTO>> response = new HashMap<>();
+//        List<PostDTO> postDTOs = posts.stream()
+//                .map(post -> {
+//                    PostDTO postDTO = new PostDTO();
+//                    postDTO.setId(post.getId());
+//                    postDTO.setUserId(post.getUser().getId());
+//                    postDTO.setContent(post.getContent());
+//                    postDTO.setVisibility(post.getVisibility());
+//                    postDTO.setCreatedAt(post.getCreatedAt()); // now LocalDateTime
+//                    postDTO.setUpdatedAt(post.getUpdatedAt()); // now LocalDateTime
+//                    return postDTO;
+//                })
+//                .collect(Collectors.toList());
+//
+//        response.put("posts", postDTOs);
+//        return ResponseEntity.ok(response);
+//    }
 }
