@@ -3,13 +3,17 @@ package com.snsapi.comment;
 import com.snsapi.like.LikeDTO;
 import com.snsapi.post.Post;
 import com.snsapi.post.PostRepository;
+import com.snsapi.user.User;
+import com.snsapi.user.UserServices;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -20,6 +24,7 @@ public class RestCommentController {
 
     private final CommentService commentService;
     private final PostRepository postRepository;
+    private final UserServices userServices;
 
     @GetMapping
     @PreAuthorize("hasAuthority('ROLE_USER')")
@@ -37,7 +42,7 @@ public class RestCommentController {
                         comment.getLikeUsers().stream()
                                 .map(user -> new LikeDTO(
                                         user.getId(),
-                                        user.getFirstName()
+                                        user.getName()
                                 )).collect(Collectors.toList())
                 ))
                 .collect(Collectors.toList());
@@ -99,5 +104,32 @@ public class RestCommentController {
     public ResponseEntity<Void> deleteComment(@PathVariable Integer commentId) {
         commentService.deleteComment(commentId);
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{commentId}/likes")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
+    public ResponseEntity<Void> likeComment(@PathVariable Integer commentId,
+                                            Principal principal) {
+        String email = principal.getName();
+        Optional<User> user = userServices.findByEmail(email);
+        commentService.likeComment(commentId, user.get().getId());
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{commentId}/likes")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
+    public ResponseEntity<Void> unlikeComment(@PathVariable Integer commentId,
+                                              Principal principal) {
+        String email = principal.getName();
+        Optional<User> user = userServices.findByEmail(email);
+        commentService.unlikeComment(commentId, user.get().getId());
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{commentId}/likes/count")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
+    public ResponseEntity<Integer> countLikes(@PathVariable Integer commentId) {
+        int likeCount = commentService.countLikes(commentId);
+        return ResponseEntity.ok(likeCount);
     }
 }

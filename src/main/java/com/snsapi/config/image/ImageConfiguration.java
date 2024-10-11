@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class ImageConfiguration implements WebMvcConfigurer {
 
-    @Value("${file_upload}")
+    @Value("${upload.image}")
     private String upload;
 
     @Override
