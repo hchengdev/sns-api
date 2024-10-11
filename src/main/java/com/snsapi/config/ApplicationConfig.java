@@ -15,17 +15,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableWebMvc
 @EnableTransactionManagement
 @EnableSpringDataWebSupport
-@PropertySource("classpath:upload_file.properties") // Đọc từ file properties
-@ComponentScan(basePackages = "com.snsapi") // Quét các thành phần trong gói com.snsapi
-@EnableJpaRepositories(basePackages = "com.snsapi") // Kích hoạt Spring Data JPA
+@PropertySource("classpath:upload_file.properties")
+@ComponentScan(basePackages = "com.snsapi")
+@EnableJpaRepositories(basePackages = "com.snsapi")
 public class ApplicationConfig implements WebMvcConfigurer {
 
-    @Value("${upload.image}") // Đọc giá trị từ upload_file.properties
+    @Value("${upload.image}")
     private String fileUpload;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Cấu hình để phục vụ hình ảnh từ đường dẫn tải lên
         registry.addResourceHandler("/image/**")
                 .addResourceLocations("file:" + fileUpload);
     }

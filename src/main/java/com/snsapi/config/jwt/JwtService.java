@@ -22,6 +22,7 @@ public class JwtService {
         User userPrincipal = (User) authentication.getPrincipal();
 
         return Jwts.builder()
+                .claim("id", userPrincipal.getId())
                 .setSubject(userPrincipal.getEmail())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRE_TIME))
@@ -47,6 +48,13 @@ public class JwtService {
         return false;
     }
 
+    public int getUserIdFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(SECRET_KEY)
+                .parseClaimsJws(token.replace("Bearer ", ""))
+                .getBody();
+        return (int) claims.get("id");
+    }
     public String getUsernameFromJwtToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSignInKey())

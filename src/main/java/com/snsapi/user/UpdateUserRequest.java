@@ -1,24 +1,23 @@
 package com.snsapi.user;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.Set;
+import java.time.LocalDate;
+
+
 
 @Data
 @Builder
 public class UpdateUserRequest {
-    private Integer id;
-    private String email;
-    private String password;
-    private String firstName;
-    private String lastName;
+    private String name;
+    private String phone;
     private Gender gender;
-    private String profilePicture;
-    private String coverPicture;
-    private Boolean active;
     private String biography;
-    private String birthday;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDate birthday;
     private String address;
-    private Set<Role> roles;
+    private String profilePicture;
 }
+

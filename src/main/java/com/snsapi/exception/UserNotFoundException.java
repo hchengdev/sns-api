@@ -1,8 +1,8 @@
 package com.snsapi.exception;
 
 public class UserNotFoundException extends RuntimeException {
+    public UserNotFoundException(int id) {
 
-    public UserNotFoundException(Integer id) {
         super("User not found with ID: " + id);
     }
 }
