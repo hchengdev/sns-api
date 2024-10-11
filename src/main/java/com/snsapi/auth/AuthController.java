@@ -66,7 +66,7 @@ public class AuthController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Người dùng không tìm thấy");
             }
 
-            return ResponseEntity.ok(new JwtResponse(currentUser.get().getId(), jwt, userDetails.getUsername()));
+            return ResponseEntity.ok(new JwtResponse(currentUser.get().getId(), jwt, userDetails.getUsername(), currentUser.get().getProfilePicture(), currentUser.get().getRoles().toString()));
         } catch (DisabledException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Người dùng bị vô hiệu hóa");
         } catch (Exception e) {

@@ -30,7 +30,7 @@ public class PostService {
     private final CommentRepository commentRepository;
     private final UserService userService;
 
-    @Value("${file-upload}")
+    @Value("${upload.image}")
     private String fileUpload;
 
     public List<Post> getAllPosts() {

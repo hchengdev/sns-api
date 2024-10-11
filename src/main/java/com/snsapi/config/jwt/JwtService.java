@@ -53,7 +53,7 @@ public class JwtService {
                 .setSigningKey(SECRET_KEY)
                 .parseClaimsJws(token.replace("Bearer ", ""))
                 .getBody();
-        return (int) claims.get("id");
+        return (Integer) claims.get("id");
     }
     public String getUsernameFromJwtToken(String token) {
         return Jwts.parserBuilder()

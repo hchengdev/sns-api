@@ -25,7 +25,7 @@ import java.util.Set;
 public class UserServices {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    @Value("${file_upload}")
+    @Value("${upload.image}")
     private String uploadDir;
 
     public Page<User> findAll(Pageable pageable) {
