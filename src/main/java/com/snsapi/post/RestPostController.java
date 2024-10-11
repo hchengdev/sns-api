@@ -9,10 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
-import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -35,8 +32,8 @@ public class RestPostController {
                     postDTO.setUserId(post.getUser().getId());  // Thêm trường userId
                     postDTO.setContent(post.getContent());
                     postDTO.setVisibility(post.getVisibility());
-                    postDTO.setCreatedAt(post.getCreatedAt()); // now LocalDateTime
-                    postDTO.setUpdatedAt(post.getUpdatedAt()); // now LocalDateTime
+                    postDTO.setCreatedAt(post.getCreatedAt());
+                    postDTO.setUpdatedAt(post.getUpdatedAt());
                     postDTO.setMedia(post.getMedia().stream().map(media -> {
                         MediaDTO mediaDTO = new MediaDTO();
                         mediaDTO.setId(media.getId());
@@ -46,8 +43,7 @@ public class RestPostController {
                     postDTO.setLikes(post.getLikeUsers().stream().map(user -> {
                         LikeDTO likeDTO = new LikeDTO();
                         likeDTO.setId(user.getId());
-                        likeDTO.setFirstName(user.getFirstName());
-                        likeDTO.setLastName(user.getLastName());
+                        likeDTO.setName(user.getFirstName());
                         return likeDTO;
                     }).collect(Collectors.toList()));
 
@@ -79,8 +75,8 @@ public class RestPostController {
             postDTO.setUserId(savedPost.getUser().getId());
             postDTO.setContent(savedPost.getContent());
             postDTO.setVisibility(savedPost.getVisibility());
-            postDTO.setCreatedAt(savedPost.getCreatedAt()); // now LocalDateTime
-            postDTO.setUpdatedAt(savedPost.getUpdatedAt()); // now LocalDateTime
+            postDTO.setCreatedAt(savedPost.getCreatedAt());
+            postDTO.setUpdatedAt(savedPost.getUpdatedAt());
             postDTO.setMedia(savedPost.getMedia().stream().map(media -> {
                 MediaDTO mediaDTO = new MediaDTO();
                 mediaDTO.setId(media.getId());
@@ -91,7 +87,6 @@ public class RestPostController {
                 LikeDTO likeDTO = new LikeDTO();
                 likeDTO.setId(user.getId());
                 likeDTO.setFirstName(user.getFirstName());
-                likeDTO.setLastName(user.getLastName());
                 return likeDTO;
             }).collect(Collectors.toList()));
 
@@ -116,8 +111,8 @@ public class RestPostController {
                 postDTO.setUserId(updatedPost.getUser().getId());
                 postDTO.setContent(updatedPost.getContent());
                 postDTO.setVisibility(updatedPost.getVisibility());
-                postDTO.setCreatedAt(updatedPost.getCreatedAt()); // now LocalDateTime
-                postDTO.setUpdatedAt(updatedPost.getUpdatedAt()); // now LocalDateTime
+                postDTO.setCreatedAt(updatedPost.getCreatedAt());
+                postDTO.setUpdatedAt(updatedPost.getUpdatedAt());
                 postDTO.setMedia(updatedPost.getMedia().stream().map(media -> {
                     MediaDTO mediaDTO = new MediaDTO();
                     mediaDTO.setId(media.getId());
@@ -128,7 +123,6 @@ public class RestPostController {
                     LikeDTO likeDTO = new LikeDTO();
                     likeDTO.setId(user.getId());
                     likeDTO.setFirstName(user.getFirstName());
-                    likeDTO.setLastName(user.getLastName());
                     return likeDTO;
                 }).collect(Collectors.toList()));
 
@@ -152,7 +146,6 @@ public class RestPostController {
         }
     }
 
-    // Uncomment this method if you want to use it
 //    @GetMapping("/me/posts")
 //    public ResponseEntity<Map<String, List<PostDTO>>> searchPosts(
 //            @RequestParam("content") String content,
@@ -161,12 +154,12 @@ public class RestPostController {
 //        // Tìm kiếm bài post theo nội dung
 //        List<Post> posts = postService.searchPostByContent(content);
 //
-//        // Nếu không tìm thấy bài post nào
+//        // Nếu không tìm thấy bài post nào, trả về danh sách rỗng
 //        if (posts.isEmpty()) {
-//            return ResponseEntity.notFound().build();
+//            return ResponseEntity.ok(Map.of("posts", List.of()));
 //        }
 //
-//        Map<String, List<PostDTO>> response = new HashMap<>();
+//        // Chuyển đổi danh sách Post thành danh sách PostDTO
 //        List<PostDTO> postDTOs = posts.stream()
 //                .map(post -> {
 //                    PostDTO postDTO = new PostDTO();
@@ -174,13 +167,41 @@ public class RestPostController {
 //                    postDTO.setUserId(post.getUser().getId());
 //                    postDTO.setContent(post.getContent());
 //                    postDTO.setVisibility(post.getVisibility());
-//                    postDTO.setCreatedAt(post.getCreatedAt()); // now LocalDateTime
-//                    postDTO.setUpdatedAt(post.getUpdatedAt()); // now LocalDateTime
+//                    postDTO.setCreatedAt(post.getCreatedAt());
+//                    postDTO.setUpdatedAt(post.getUpdatedAt());
+//
+//                    // Ánh xạ danh sách media
+//                    List<MediaDTO> mediaDTOs = post.getMedia().stream()
+//                            .map(media -> {
+//                                MediaDTO mediaDTO = new MediaDTO();
+//                                mediaDTO.setId(media.getId());
+//                                mediaDTO.setPostId(post.getId());
+//                                mediaDTO.setUrl(media.getUrl());
+//                                return mediaDTO;
+//                            })
+//                            .collect(Collectors.toList());
+//                    postDTO.setMedia(mediaDTOs);
+//
+//                    // Ánh xạ danh sách likes
+//                    List<LikeDTO> likeDTOs = post.getLikeUsers().stream()
+//                            .map(user -> {
+//                                LikeDTO likeDTO = new LikeDTO();
+//                                likeDTO.setId(user.getId());
+//                                likeDTO.setFirstName(user.getFirstName());
+//                                likeDTO.setLastName(user.getLastName());
+//                                return likeDTO;
+//                            })
+//                            .collect(Collectors.toList());
+//                    postDTO.setLikes(likeDTOs); // Chú ý sửa từ "like" thành "likes"
+//
 //                    return postDTO;
 //                })
 //                .collect(Collectors.toList());
 //
+//        // Trả về danh sách bài post theo định dạng yêu cầu
+//        Map<String, List<PostDTO>> response = new HashMap<>();
 //        response.put("posts", postDTOs);
+//
 //        return ResponseEntity.ok(response);
 //    }
 }
