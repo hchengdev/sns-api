@@ -104,4 +104,38 @@ public class PostService {
     public List<Post> findAllPostsByUserId(Integer userId) {
         return postRepository.findByUserId(userId);
     }
+
+    public void likePost(Integer postId, Integer userId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("Bài viết không tồn tại!!"));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Người dùng không tồn tại!!"));
+
+        if (post.getLikeUsers().contains(user)) {
+            throw new IllegalArgumentException("Bài viết đã được thích bởi người dùng!!");
+        }
+        post.getLikeUsers().add(user);
+        postRepository.save(post);
+    }
+
+    public void unlikePost(Integer postId, Integer userId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("Bài viết không tồn tại!!"));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Người dùng không tồn tại!!"));
+
+        if (!post.getLikeUsers().contains(user)) {
+            throw new IllegalArgumentException("Bài viết chưa được thích bởi người dùng!!");
+        }
+        post.getLikeUsers().remove(user);
+        postRepository.save(post);
+    }
+
+    public int countLikes(Integer postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("Bài viết không tồn tại!!"));
+        return post.getLikeUsers().size();
+    }
 }
