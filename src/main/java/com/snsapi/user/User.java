@@ -1,5 +1,6 @@
 package com.snsapi.user;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.snsapi.post.Post;
@@ -12,8 +13,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Data
@@ -33,16 +34,12 @@ public class User implements UserDetails {
     private String email;
 
     @JsonProperty("password")
-    @Column(nullable = false, length = 255)
+    @Column(nullable = true, length = 255)
     private String password;
 
-    @JsonProperty("firstName")
+    @JsonProperty("name")
     @Column(nullable = true, length = 255)
-    private String firstName;
-
-    @JsonProperty("lastName")
-    @Column(nullable = true, length = 255)
-    private String lastName;
+    private String name;
 
     @JsonProperty("gender")
     @Enumerated(EnumType.STRING)
@@ -52,25 +49,31 @@ public class User implements UserDetails {
     @JsonProperty("profilePicture")
     private String profilePicture;
 
-    @JsonProperty("coverPicture")
-    @Column(nullable = true, length = 255)
-    private String coverPicture;
+    @JsonProperty("phone")
+    @Column(nullable = true)
+    private String phone;
 
     @JsonProperty("active")
     @Column(nullable = false)
-    private boolean active;
+    private Boolean active;
 
     @JsonProperty("biography")
     @Column(nullable = true, length = 255)
     private String biography;
 
     @JsonProperty("birthday")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     @Column(nullable = true)
-    private String birthday;
+    private LocalDate birthday;
+
 
     @JsonProperty("address")
     @Column(nullable = true, length = 255)
     private String address;
+
+    @JsonProperty("creationDate")
+    @Column(nullable = true)
+    private LocalDate creationDate;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore

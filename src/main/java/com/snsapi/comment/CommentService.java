@@ -19,6 +19,7 @@
 //    private final CommentRepository commentRepository;
 //    private final UserRepository userRepository;
 //
+
 //    public List<Comment> getAllCommentsByPostId(Integer postId) {
 //        return commentRepository.findByPostId(postId);
 //    }
@@ -38,12 +39,14 @@
 //        return commentRepository.save(comment);
 //    }
 //
+//    public void deleteComment(Long commentId) {
 //    public void deleteComment(Integer commentId) {
 //        Comment comment = commentRepository.findById(commentId)
 //                .orElseThrow(() -> new IllegalArgumentException("Comment không tồn tại."));
 //        commentRepository.delete(comment);
 //    }
 //
+
 //    public void likeComment(Integer commentId, Integer userId) {
 //        Comment comment = commentRepository.findById(commentId)
 //                .orElseThrow(() -> new IllegalArgumentException("Comment không tồn tại."));
@@ -54,6 +57,7 @@
 //        commentRepository.save(comment);
 //    }
 //
+
 //    public void unlikeComment(Integer commentId, Integer userId) {
 //        Comment comment = commentRepository.findById(commentId)
 //                .orElseThrow(() -> new IllegalArgumentException("Comment không tồn tại."));

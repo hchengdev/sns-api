@@ -2,20 +2,19 @@ package com.snsapi.user;
 
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.Set;
 
 @Data
 @Builder
-public class AddUserRequest {
-    private String email;
-    private String password;
+public class FormUpdateRequest {
     private String name;
+    private Gender gender;
     private String phone;
+    private String biography;
     private LocalDate birthday;
+    private String address;
     private Boolean active;
-    private Set<Role> roles;
+    private MultipartFile profilePicture;
 }
-
