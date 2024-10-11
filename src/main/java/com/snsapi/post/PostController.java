@@ -43,7 +43,7 @@ public class PostController {
             List<LikeDTO> likeDTOs = post.getLikeUsers().stream().map(like -> {
                 LikeDTO likeDTO = new LikeDTO();
                 likeDTO.setId(like.getId());
-                likeDTO.setFirstName(like.getFirstName());
+                likeDTO.setName(like.getName());
                 return likeDTO;
             }).collect(Collectors.toList());
 

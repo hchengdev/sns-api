@@ -53,9 +53,13 @@ public class CommentService {
     public void likeComment(Integer commentId, Integer userId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException("Comment không tồn tại."));
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Người dùng không tồn tại."));
 
+        if (comment.getLikeUsers().contains(user)) {
+            throw new IllegalArgumentException("Bạn đã thích bình luận này rồi.");
+        }
         comment.getLikeUsers().add(user);
         commentRepository.save(comment);
     }
@@ -63,10 +67,20 @@ public class CommentService {
     public void unlikeComment(Integer commentId, Integer userId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException("Comment không tồn tại."));
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Người dùng không tồn tại."));
 
+        if (!comment.getLikeUsers().contains(user)) {
+            throw new IllegalArgumentException("Bạn chưa thích bình luận này.");
+        }
         comment.getLikeUsers().remove(user);
         commentRepository.save(comment);
+    }
+
+    public int countLikes(Integer commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("Bài viết không tồn tại!!"));
+        return comment.getLikeUsers().size();
     }
 }
