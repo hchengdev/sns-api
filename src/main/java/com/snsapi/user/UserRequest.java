@@ -12,7 +12,7 @@ public class UserRequest {
     private Integer id;
     private String email;
     private String password;
-   private String name;
+    private String name;
     private String phone;
     private Gender gender;
     private String profilePicture;

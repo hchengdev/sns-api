@@ -111,13 +111,14 @@ public class UserServices {
         userRepository.deleteById(id);
     }
 
-    public void updatePassword(int id, String newPassword, String oldPassword) {
+    public User updatePassword(int id, String newPassword, String oldPassword) {
         User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         if (passwordEncoder.matches(oldPassword, user.getPassword())) {
             user.setPassword(encodePassword(newPassword));
+            return userRepository.save(user);
         }
-        userRepository.save(user);
+        return null;
     }
 
     public Optional<User> findByEmail(String email) {

@@ -41,7 +41,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("api/v1/{id}")
+    @GetMapping("api/v1/user/{id}")
     public ResponseEntity<User> getUserById(@PathVariable int id) {
         userService.findById(id);
         return ResponseEntity.ok(userService.findById(id));
@@ -96,13 +96,14 @@ public class UserController {
     @PutMapping("/api/v1/me/password")
     public ResponseEntity<String> updatePassword(
             @RequestHeader("Authorization") String token,
-            @RequestParam String currentPassword,
-            @RequestParam String newPassword) {
+            @RequestBody UpdatePasswordRequest request) {
         try {
             token = token.startsWith("Bearer") ? token.substring(7) : token;
             int id = jwtService.getUserIdFromToken(token);
-            userService.updatePassword(id, newPassword, currentPassword);
-            return ResponseEntity.ok("user updated successfully");
+            if (userService.updatePassword(id, request.getNewPassword(), request.getCurrentPassword()) != null) {
+                return ResponseEntity.ok("user updated successfully");
+            }
+            return ResponseEntity.status(500).body("Incorrect password");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
         }
