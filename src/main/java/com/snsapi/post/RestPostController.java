@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/posts")
-@CrossOrigin(origins = "http://localhost:8081")
+@CrossOrigin(origins = "http://localhost:3002")
 @RequiredArgsConstructor
 public class RestPostController {
 
@@ -107,12 +107,19 @@ public class RestPostController {
     public ResponseEntity<?> updatePost(@PathVariable("id") Integer postId,
                                         @RequestParam(value = "file", required = false) MultipartFile file,
                                         @RequestParam("content") String content,
-                                        @RequestParam("visibility") Post.VisibilityEnum visibility) {
+                                        @RequestParam(value = "visibility", required = false) Post.VisibilityEnum visibility) {
+        // Kiểm tra xem nội dung có hợp lệ không
+        if (content == null || content.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Nội dung không được để trống.");
+        }
+
         try {
+            // Cập nhật bài viết với nội dung và có thể có ảnh
             Post updatedPost = postService.updatePost(postId, content, visibility, file);
 
             if (updatedPost != null) {
                 PostDTO postDTO = new PostDTO();
+                // Ánh xạ thuộc tính từ updatedPost
                 postDTO.setId(updatedPost.getId());
                 postDTO.setUserId(updatedPost.getUser().getId());
                 postDTO.setContent(updatedPost.getContent());
@@ -141,6 +148,7 @@ public class RestPostController {
                     .body("Đã xảy ra lỗi khi cập nhật bài post: " + e.getMessage());
         }
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletePost(@PathVariable("id") Integer postId) {
