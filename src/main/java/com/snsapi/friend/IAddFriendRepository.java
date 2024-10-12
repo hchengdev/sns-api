@@ -20,4 +20,7 @@ public interface IAddFriendRepository extends JpaRepository<AddFriend, Integer> 
             "AND uf1.status = 'ACCEPTED' " +
             "AND uf2.status = 'ACCEPTED'")
     List<Integer> findMutualFriends(@Param("userId1") Integer userId1, @Param("userId2") Integer userId2);
+
+    @Query("SELECT af FROM AddFriend af WHERE (af.user.id = :user OR af.friend.id = :user) AND af.status = 'ACCEPTED'")
+    List<AddFriend> findAllAcceptedFriends(@Param("user") Integer userId);
 }

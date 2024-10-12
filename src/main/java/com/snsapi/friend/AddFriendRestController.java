@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/me/friends")
-@CrossOrigin(origins = "http://localhost:8081")
+@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class AddFriendRestController {
 
@@ -33,7 +33,7 @@ public class AddFriendRestController {
         }
     }
 
-    @PostMapping("/{id}/accept")
+    @PutMapping("/{id}")
     public ResponseEntity<?> acceptFriend(@PathVariable("id") Integer userId, @RequestHeader("Authorization") String token) {
         try {
             token = token.startsWith("Bearer") ? token.substring(7) : token;
@@ -79,6 +79,28 @@ public class AddFriendRestController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body("Lấy danh sách bạn chung thất bại.");
+        }
+    }
+
+    @GetMapping("/friends")
+    public ResponseEntity<?> getFriends( @RequestHeader("Authorization") String token) {
+        try {
+            token = token.startsWith("Bearer")? token.substring(7) : token;
+            int id = jwtService.getUserIdFromToken(token);
+            addFriendService.findAllFriends(id);
+            return ResponseEntity.ok("Lấy danh sách bạn bè thành công.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Lấy danh sách bạn bè thất bại.");
+        }
+    }
+
+    @GetMapping("/friends/{id}")
+    public ResponseEntity<?> getFriends( @PathVariable("id") Integer friendId) {
+        try {
+            addFriendService.findAllFriends(friendId);
+            return ResponseEntity.ok("Lấy danh sách bạn bè thành công.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Lấy danh sách bạn bè thất bại.");
         }
     }
 }

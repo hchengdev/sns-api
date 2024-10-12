@@ -4,6 +4,7 @@ import com.snsapi.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -46,5 +47,9 @@ public class AddFriendService  {
 
     public List<Integer> mutualFriends(Integer user1, Integer user2) {
         return addFriendRepository.findMutualFriends(user1, user2);
+    }
+
+    public void findAllFriends(Integer userId) {
+            List<AddFriend> addFriends = addFriendRepository.findAllAcceptedFriends(userId);
     }
 }
