@@ -87,9 +87,13 @@ public class AddFriendRestController {
         try {
             token = token.startsWith("Bearer")? token.substring(7) : token;
             int id = jwtService.getUserIdFromToken(token);
-            addFriendService.findAllFriends(id);
-            return ResponseEntity.ok("Lấy danh sách bạn bè thành công.");
+            List<Integer> findAllFriends = addFriendService.findAllFriends(id);
+            if (findAllFriends.isEmpty()) {
+                return ResponseEntity.ok("Không có bạn bè.");
+            }
+            return ResponseEntity.ok(findAllFriends);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().body("Lấy danh sách bạn bè thất bại.");
         }
     }
@@ -97,9 +101,13 @@ public class AddFriendRestController {
     @GetMapping("/friends/{id}")
     public ResponseEntity<?> getFriends( @PathVariable("id") Integer friendId) {
         try {
-            addFriendService.findAllFriends(friendId);
-            return ResponseEntity.ok("Lấy danh sách bạn bè thành công.");
+            List<Integer> findAllFriends = addFriendService.findAllFriends(friendId);
+            if (findAllFriends.isEmpty()) {
+                return ResponseEntity.ok("Không có bạn bè.");
+            }
+            return ResponseEntity.ok(findAllFriends);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().body("Lấy danh sách bạn bè thất bại.");
         }
     }

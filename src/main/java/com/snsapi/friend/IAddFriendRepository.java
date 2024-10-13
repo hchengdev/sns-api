@@ -22,5 +22,5 @@ public interface IAddFriendRepository extends JpaRepository<AddFriend, Integer> 
     List<Integer> findMutualFriends(@Param("userId1") Integer userId1, @Param("userId2") Integer userId2);
 
     @Query("SELECT af FROM AddFriend af WHERE (af.user.id = :user OR af.friend.id = :user) AND af.status = 'ACCEPTED'")
-    List<AddFriend> findAllAcceptedFriends(@Param("user") Integer userId);
+    List<Integer> findAllAcceptedFriends(@Param("user") Integer userId);
 }
