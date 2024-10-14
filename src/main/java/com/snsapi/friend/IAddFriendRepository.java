@@ -1,5 +1,6 @@
 package com.snsapi.friend;
 
+import com.snsapi.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,6 +22,6 @@ public interface IAddFriendRepository extends JpaRepository<AddFriend, Integer> 
             "AND uf2.status = 'ACCEPTED'")
     List<Integer> findMutualFriends(@Param("userId1") Integer userId1, @Param("userId2") Integer userId2);
 
-    @Query("SELECT af FROM AddFriend af WHERE (af.user.id = :user OR af.friend.id = :user) AND af.status = 'ACCEPTED'")
-    List<Integer> findAllAcceptedFriends(@Param("user") Integer userId);
+    @Query("SELECT u FROM User u join AddFriend af on u.id = af.friend.id WHERE (af.user.id = :user OR af.friend.id = :user) AND af.status = 'ACCEPTED'")
+    List<User> findAllAcceptedFriends(@Param("user") Integer userId);
 }

@@ -48,7 +48,7 @@ public class AddFriendService  {
         return addFriendRepository.findMutualFriends(user1, user2);
     }
 
-    public List<Integer> findAllFriends(Integer userId) {
+    public List<User> findAllFriends(Integer userId) {
         return addFriendRepository.findAllAcceptedFriends(userId);
     }
 }

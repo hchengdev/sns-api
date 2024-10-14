@@ -87,7 +87,7 @@ public class AddFriendRestController {
         try {
             token = token.startsWith("Bearer")? token.substring(7) : token;
             int id = jwtService.getUserIdFromToken(token);
-            List<Integer> findAllFriends = addFriendService.findAllFriends(id);
+            List<User> findAllFriends = addFriendService.findAllFriends(id);
             if (findAllFriends.isEmpty()) {
                 return ResponseEntity.ok("Không có bạn bè.");
             }
@@ -101,7 +101,7 @@ public class AddFriendRestController {
     @GetMapping("/friends/{id}")
     public ResponseEntity<?> getFriends( @PathVariable("id") Integer friendId) {
         try {
-            List<Integer> findAllFriends = addFriendService.findAllFriends(friendId);
+            List<User> findAllFriends = addFriendService.findAllFriends(friendId);
             if (findAllFriends.isEmpty()) {
                 return ResponseEntity.ok("Không có bạn bè.");
             }
