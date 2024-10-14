@@ -3,6 +3,7 @@ package com.snsapi.user;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.snsapi.friend.AddFriend;
 import com.snsapi.post.Post;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -117,6 +118,9 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return active;
     }
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<AddFriend> friends = new ArrayList<>();
 }
 
 
