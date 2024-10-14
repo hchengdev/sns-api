@@ -54,7 +54,7 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
                                 .requestMatchers("/api/v1/login", "/api/v1/register", "/v1/auth/google", "/auth/google/callback","/image/**").permitAll()
-                                .requestMatchers("/api/product", "/api/v1/**","/image/**").authenticated()
+                                .requestMatchers("/api/product", "/api/v1/**").authenticated()
                 ).build();
 
     }

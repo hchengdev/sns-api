@@ -63,7 +63,10 @@ public class PostService {
                 .orElseThrow(() -> new IllegalArgumentException("Bài viết không tồn tại."));
 
         post.setContent(content);
-        post.setVisibility(visibility);
+
+        if (visibility != null) {
+            post.setVisibility(visibility);
+        }
 
         if (file != null && !file.isEmpty()) {
             Media media = new Media();
