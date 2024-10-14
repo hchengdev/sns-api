@@ -9,6 +9,8 @@ import java.util.List;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Integer> {
+    List<Post> findAllByOrderByCreatedAtDesc();
+
     List<Post> findByUser(User user);
 
     @Query("SELECT COUNT(u) FROM Post p JOIN p.likeUsers u WHERE p.id = :postId")

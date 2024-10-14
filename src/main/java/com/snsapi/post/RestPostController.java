@@ -28,7 +28,7 @@ public class RestPostController {
 
     @GetMapping
     public ResponseEntity<List<PostDTO>> findAllPosts() {
-        List<Post> posts = postService.getAllPosts();
+        List<Post> posts = postService.getAllPostsSortedByCreatedAt();
 
         List<PostDTO> postDTOs = posts.stream()
                 .distinct()

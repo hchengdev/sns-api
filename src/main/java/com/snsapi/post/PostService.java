@@ -33,6 +33,10 @@ public class PostService {
     @Value("${upload.image}")
     private String fileUpload;
 
+    public List<Post> getAllPostsSortedByCreatedAt() {
+        return postRepository.findAllByOrderByCreatedAtDesc();
+    }
+
     public List<Post> getAllPosts() {
         return postRepository.findAll();
     }

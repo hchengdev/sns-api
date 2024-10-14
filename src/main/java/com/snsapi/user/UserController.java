@@ -40,7 +40,6 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi hệ thống: " + e.getMessage());
         }
     }
-}
 
     @GetMapping("api/v1/user/{id}")
     public ResponseEntity<User> getUserById(@PathVariable int id) {
@@ -109,4 +108,6 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
         }
     }
+
 }
+
