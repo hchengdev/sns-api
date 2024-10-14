@@ -2,6 +2,7 @@ package com.snsapi.user;
 
 import com.snsapi.config.jwt.JwtService;
 import com.snsapi.exception.UserNotFoundException;
+import com.snsapi.friend.AddFriendService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -20,13 +22,15 @@ public class UserController {
     private final JwtService jwtService;
     private final UserServices userService;
     private final UserServiceInterface userDetailsService;
+    private final AddFriendService addFriendService;
 
     @Autowired
-    public UserController(AuthenticationManager authenticationManager, JwtService jwtService, UserServiceInterface userDetailsService, UserServices userService) {
+    public UserController(AuthenticationManager authenticationManager, JwtService jwtService, UserServiceInterface userDetailsService, UserServices userService, AddFriendService addFriendService) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
         this.userService = userService;
+        this.addFriendService = addFriendService;
     }
 
     @PostMapping("/api/v1/register")
@@ -40,7 +44,6 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi hệ thống: " + e.getMessage());
         }
     }
-}
 
     @GetMapping("api/v1/user/{id}")
     public ResponseEntity<User> getUserById(@PathVariable int id) {
@@ -107,6 +110,36 @@ public class UserController {
             return ResponseEntity.status(500).body("Incorrect password");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
+        }
+    }
+
+    @GetMapping("/api/v1/me/friends")
+    public ResponseEntity<?> getFriends( @RequestHeader("Authorization") String token) {
+        try {
+            token = token.startsWith("Bearer")? token.substring(7) : token;
+            int id = jwtService.getUserIdFromToken(token);
+            List<User> findAllFriends = addFriendService.findAllFriends(id);
+            if (findAllFriends.isEmpty()) {
+                return ResponseEntity.ok("Không có bạn bè.");
+            }
+            return ResponseEntity.ok(findAllFriends);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Lấy danh sách bạn bè thất bại.");
+        }
+    }
+
+    @GetMapping("/api/v1/me/{id}/friends")
+    public ResponseEntity<?> getFriends( @PathVariable("id") Integer friendId) {
+        try {
+            List<User> findAllFriends = addFriendService.findAllFriends(friendId);
+            if (findAllFriends.isEmpty()) {
+                return ResponseEntity.ok("Không có bạn bè.");
+            }
+            return ResponseEntity.ok(findAllFriends);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Lấy danh sách bạn bè thất bại.");
         }
     }
 }

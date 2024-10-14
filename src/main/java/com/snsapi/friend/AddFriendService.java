@@ -19,7 +19,7 @@ public class AddFriendService  {
         addFriendRepository.save(addFriend);
     }
 
-    public void addFriendSucces(Integer friendId, Integer userId) {
+    public void addFriendSuccess(Integer friendId, Integer userId) {
         AddFriend addFriend = AddFriend.builder()
                 .friend(User.builder().id(userId).build())
                 .user(User.builder().id(friendId).build())
@@ -33,7 +33,7 @@ public class AddFriendService  {
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy lời mời kết bạn"));
         if (addFriend.getStatus() == Status.PENDING) {
             addFriend.setStatus(Status.ACCEPTED);
-            addFriendSucces(friendId, userId);
+            addFriendSuccess(friendId, userId);
             addFriendRepository.save(addFriend);
         }
     }
