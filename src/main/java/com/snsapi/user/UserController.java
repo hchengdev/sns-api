@@ -109,6 +109,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
         }
     }
+
     @GetMapping("/api/v1/users") // GET : /api/v1/users?name=hien
     public ResponseEntity<?> findFriendsByName(@RequestParam(name = "name", required = false) String name) {
         try {
@@ -123,10 +124,15 @@ public class UserController {
         }
     }
 
-    @GetMapping ("api/v1/users/{id}/block")
+    @PutMapping("api/v1/users/{id}/block")
     public ResponseEntity<String> blockUser(@PathVariable int id) {
-            userService.updateActive(id);
+        User user = userService.updateActive(id);
+        if (!user.getActive()) {
             return ResponseEntity.ok("Đã chặn người dùng.");
+
+        } else {
+            return ResponseEntity.ok("Đã mở khóa người dùng.");
+        }
     }
 
 }
