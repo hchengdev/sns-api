@@ -134,6 +134,7 @@ public class UserServices {
                 .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
+                .active(user.getActive())
                 .profilePicture(user.getProfilePicture())
                 .biography(user.getBiography())
                 .address(user.getAddress())
