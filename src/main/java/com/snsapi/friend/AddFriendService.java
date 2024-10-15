@@ -1,6 +1,7 @@
 package com.snsapi.friend;
 
 import com.snsapi.user.User;
+import com.snsapi.user.UserServices;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

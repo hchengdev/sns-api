@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -40,9 +41,8 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi hệ thống: " + e.getMessage());
         }
     }
-}
 
-    @GetMapping("api/v1/user/{id}")
+    @GetMapping("api/v1/users/{id}")
     public ResponseEntity<User> getUserById(@PathVariable int id) {
         userService.findById(id);
         return ResponseEntity.ok(userService.findById(id));
@@ -104,9 +104,29 @@ public class UserController {
             if (userService.updatePassword(id, request.getNewPassword(), request.getCurrentPassword()) != null) {
                 return ResponseEntity.ok("user updated successfully");
             }
-            return ResponseEntity.status(500).body("Incorrect password");
+            return ResponseEntity.badRequest().body("Incorrect password");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
         }
     }
+    @GetMapping("/api/v1/users") // GET : /api/v1/users?name=hien
+    public ResponseEntity<?> findFriendsByName(@RequestParam(name = "name", required = false) String name) {
+        try {
+            List<FindUserResponse> findFriendsByName = userService.findByName(name);
+            if (findFriendsByName.isEmpty()) {
+                return ResponseEntity.ok("Không tìm thấy người dùng.");
+            }
+            return ResponseEntity.ok(findFriendsByName);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Tìm kiếm bạn bè thất bại.");
+        }
+    }
+
+    @GetMapping ("api/v1/users/{id}/block")
+    public ResponseEntity<String> blockUser(@PathVariable int id) {
+            userService.updateActive(id);
+            return ResponseEntity.ok("Đã chặn người dùng.");
+    }
+
 }
