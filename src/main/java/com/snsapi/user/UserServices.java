@@ -147,6 +147,16 @@ public class UserServices {
                 .build();
     }
 
+    public void updateActive(Integer id) {
+        Optional<User> user = userRepository.findById(id);
+        if (user.isPresent()) {
+            User userEntity = user.get();
+            userEntity.setActive(!userEntity.getActive());
+            userRepository.save(userEntity);
+        } else {
+            throw new UserNotFoundException(id);
+        }
+    }
 
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);

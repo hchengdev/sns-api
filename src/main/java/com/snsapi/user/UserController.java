@@ -123,4 +123,10 @@ public class UserController {
         }
     }
 
+    @GetMapping ("api/v1/users/{id}/block")
+    public ResponseEntity<String> blockUser(@PathVariable int id) {
+            userService.updateActive(id);
+            return ResponseEntity.ok("Đã chặn người dùng.");
+    }
+
 }
