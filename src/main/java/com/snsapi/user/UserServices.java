@@ -166,5 +166,8 @@ public class UserServices {
         return passwordEncoder.encode(password);
     }
 
+    public List<NewUserByMonthResponse> getUserNumberByMonthOfYear(int year) {
+        return  userRepository.getUserNumberByMonthOfYear(year);
+    }
 }
 
