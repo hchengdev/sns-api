@@ -2,8 +2,6 @@ package com.snsapi.user;
 
 import com.snsapi.config.jwt.JwtService;
 import com.snsapi.exception.UserNotFoundException;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -125,13 +123,13 @@ public class UserController {
     }
 
     @PutMapping("api/v1/users/{id}/block")
-    public ResponseEntity<String> blockUser(@PathVariable int id) {
+    public ResponseEntity<User> blockUser(@PathVariable int id) {
         User user = userService.updateActive(id);
         if (!user.getActive()) {
-            return ResponseEntity.ok("Đã chặn người dùng.");
+            return ResponseEntity.ok(user);
 
         } else {
-            return ResponseEntity.ok("Đã mở khóa người dùng.");
+            return ResponseEntity.ok(user);
         }
     }
 
