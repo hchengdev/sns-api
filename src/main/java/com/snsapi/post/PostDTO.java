@@ -14,14 +14,14 @@ public class PostDTO {
     private Post.VisibilityEnum visibility;
     private List<MediaDTO> media;
     private List<LikeDTO> likes;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private String createdAt;
+    private String updatedAt;
 
     public PostDTO() {
     }
 
     public PostDTO(Integer id, Integer userId, String content, Post.VisibilityEnum visibility,
-                   List<MediaDTO> media, List<LikeDTO> likes, LocalDateTime createdAt, LocalDateTime updatedAt) {
+                   List<MediaDTO> media, List<LikeDTO> likes, String createdAt, String updatedAt) {
         this.id = id;
         this.userId = userId;
         this.content = content;
@@ -80,19 +80,19 @@ public class PostDTO {
         this.likes = likes;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
+    public String getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
     }
 }

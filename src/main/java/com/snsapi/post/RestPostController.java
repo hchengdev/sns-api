@@ -4,6 +4,7 @@ import com.snsapi.like.LikeDTO;
 import com.snsapi.media.MediaDTO;
 import com.snsapi.user.User;
 import com.snsapi.user.UserServices;
+import com.snsapi.utils.DateConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/posts")
-@CrossOrigin(origins = "http://localhost:3002")
+@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class RestPostController {
 
@@ -38,8 +39,8 @@ public class RestPostController {
                     postDTO.setUserId(post.getUser().getId());
                     postDTO.setContent(post.getContent());
                     postDTO.setVisibility(post.getVisibility());
-                    postDTO.setCreatedAt(post.getCreatedAt());
-                    postDTO.setUpdatedAt(post.getUpdatedAt());
+                    postDTO.setCreatedAt(DateConverter.localDateTimeToDateWithSlash(post.getCreatedAt()));
+                    postDTO.setUpdatedAt(DateConverter.localDateTimeToDateWithSlash(post.getUpdatedAt()));
                     postDTO.setMedia(post.getMedia().stream().map(media -> {
                         MediaDTO mediaDTO = new MediaDTO();
                         mediaDTO.setId(media.getId());
@@ -81,8 +82,8 @@ public class RestPostController {
             postDTO.setUserId(savedPost.getUser().getId());
             postDTO.setContent(savedPost.getContent());
             postDTO.setVisibility(savedPost.getVisibility());
-            postDTO.setCreatedAt(savedPost.getCreatedAt());
-            postDTO.setUpdatedAt(savedPost.getUpdatedAt());
+            postDTO.setCreatedAt(DateConverter.localDateTimeToDateWithSlash(savedPost.getCreatedAt()));
+            postDTO.setUpdatedAt(DateConverter.localDateTimeToDateWithSlash(savedPost.getUpdatedAt()));
             postDTO.setMedia(savedPost.getMedia().stream().map(media -> {
                 MediaDTO mediaDTO = new MediaDTO();
                 mediaDTO.setId(media.getId());
@@ -124,8 +125,8 @@ public class RestPostController {
                 postDTO.setUserId(updatedPost.getUser().getId());
                 postDTO.setContent(updatedPost.getContent());
                 postDTO.setVisibility(updatedPost.getVisibility());
-                postDTO.setCreatedAt(updatedPost.getCreatedAt());
-                postDTO.setUpdatedAt(updatedPost.getUpdatedAt());
+                postDTO.setCreatedAt(DateConverter.localDateTimeToDateWithSlash(updatedPost.getCreatedAt()));
+                postDTO.setUpdatedAt(DateConverter.localDateTimeToDateWithSlash(updatedPost.getUpdatedAt()));
                 postDTO.setMedia(updatedPost.getMedia().stream().map(media -> {
                     MediaDTO mediaDTO = new MediaDTO();
                     mediaDTO.setId(media.getId());
@@ -149,7 +150,6 @@ public class RestPostController {
         }
     }
 
-
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletePost(@PathVariable("id") Integer postId) {
         try {
@@ -161,29 +161,21 @@ public class RestPostController {
     }
 
     @PutMapping("/{id}/likes")
-    @PreAuthorize("hasAuthority('ROLE_USER')")
-    public ResponseEntity<Void> likePost(@PathVariable Integer id,
-                                         Principal principal) {
+    public ResponseEntity<Void> toggleLikePost(@PathVariable Integer id, Principal principal) {
         String email = principal.getName();
         Optional<User> user = userServices.findByEmail(email);
-        postService.likePost(id, user.get().getId());
-        return ResponseEntity.ok().build();
-    }
 
-    @DeleteMapping("/{id}/likes")
-    @PreAuthorize("hasAuthority('ROLE_USER')")
-    public ResponseEntity<Void> unlikePost(@PathVariable Integer id,
-                                           Principal principal) {
-        String email = principal.getName();
-        Optional<User> user = userServices.findByEmail(email);
-        postService.unlikePost(id, user.get().getId());
-        return ResponseEntity.ok().build();
+        if (user.isPresent()) {
+            postService.toggleLikePost(id, user.get().getId());
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
     @GetMapping("/{id}/likes/count")
-    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<Integer> countLikes(@PathVariable Integer id) {
-        int likeCount = postService.countLikes(id);
-        return ResponseEntity.ok(likeCount);
+        int countLikes = postService.countLikes(id);
+        return ResponseEntity.ok(countLikes);
     }
 }

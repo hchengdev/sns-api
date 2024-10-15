@@ -2,6 +2,7 @@ package com.snsapi.post;
 
 import com.snsapi.like.LikeDTO;
 import com.snsapi.media.MediaDTO;
+import com.snsapi.utils.DateConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,8 +28,8 @@ public class PostController {
             postDTO.setUserId(post.getUser().getId());
             postDTO.setContent(post.getContent());
             postDTO.setVisibility(post.getVisibility());
-            postDTO.setCreatedAt(post.getCreatedAt());
-            postDTO.setUpdatedAt(post.getUpdatedAt());
+            postDTO.setCreatedAt(DateConverter.localDateTimeToDateWithSlash(post.getCreatedAt()));
+            postDTO.setUpdatedAt(DateConverter.localDateTimeToDateWithSlash(post.getUpdatedAt()));
 
             List<MediaDTO> mediaDTOs = post.getMedia().stream().map(media -> {
                 MediaDTO mediaDTO = new MediaDTO();

@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/posts/{postId}/comments")
-@CrossOrigin("*")
+@CrossOrigin(origins = "http://localhost:3002")
 @RequiredArgsConstructor
 public class RestCommentController {
 
