@@ -5,6 +5,7 @@ import com.snsapi.exception.UserNotFoundException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -40,7 +42,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi hệ thống: " + e.getMessage());
         }
     }
-}
+
 
     @GetMapping("api/v1/user/{id}")
     public ResponseEntity<User> getUserById(@PathVariable int id) {
@@ -108,5 +110,12 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
         }
+    }
+
+    @GetMapping("/api/v1/users/new-users")
+    public ResponseEntity<List<NewUserByMonthResponse>> getUserNumberByMonthOfYear(@RequestParam(name ="year") int year) {
+        List<NewUserByMonthResponse> data = userService.getUserNumberByMonthOfYear(year);
+
+        return ResponseEntity.status(HttpStatus.OK).body(data);
     }
 }

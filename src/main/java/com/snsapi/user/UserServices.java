@@ -15,10 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -129,5 +126,8 @@ public class UserServices {
         return passwordEncoder.encode(password);
     }
 
+    public List<NewUserByMonthResponse> getUserNumberByMonthOfYear(int year) {
+        return  userRepository.getUserNumberByMonthOfYear(year);
+    }
 }
 
