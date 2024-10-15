@@ -133,6 +133,7 @@ public class UserServices {
         return FindUserResponse.builder()
                 .id(user.getId())
                 .name(user.getName())
+                .email(user.getEmail())
                 .profilePicture(user.getProfilePicture())
                 .biography(user.getBiography())
                 .address(user.getAddress())

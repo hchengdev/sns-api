@@ -8,6 +8,7 @@ import lombok.Data;
 public class FindUserResponse {
     private Integer id;
     private String name;
+    private String email;
     private String profilePicture;
     private String biography;
     private String address;

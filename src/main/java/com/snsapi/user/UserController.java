@@ -42,7 +42,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("api/v1/user/{id}")
+    @GetMapping("api/v1/users/{id}")
     public ResponseEntity<User> getUserById(@PathVariable int id) {
         userService.findById(id);
         return ResponseEntity.ok(userService.findById(id));
@@ -109,8 +109,8 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
         }
     }
-    @GetMapping("/api/v1/findUsers/{name}")
-    public ResponseEntity<?> findFriendsByName(@PathVariable("name") String name) {
+    @GetMapping("/api/v1/users") // GET : /api/v1/users?name=hien
+    public ResponseEntity<?> findFriendsByName(@RequestParam(name = "name") String name) {
         try {
             List<FindUserResponse> findFriendsByName = userService.findByName(name);
             if (findFriendsByName.isEmpty()) {
@@ -122,4 +122,5 @@ public class UserController {
             return ResponseEntity.badRequest().body("Tìm kiếm bạn bè thất bại.");
         }
     }
+
 }
