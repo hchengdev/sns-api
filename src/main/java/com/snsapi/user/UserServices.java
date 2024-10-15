@@ -1,6 +1,5 @@
 package com.snsapi.user;
 
-import com.snsapi.exception.EmailAlreadyExistsException;
 import com.snsapi.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +15,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -65,7 +65,7 @@ public class UserServices {
         userRepository.save(user);
     }
 
-    public void saveGG(String email) {
+    public User saveGG(String email) {
         var user = User.builder()
                 .email(email)
                 .password(encodePassword("123456789"))
@@ -73,7 +73,7 @@ public class UserServices {
                 .active(true)
                 .roles(new HashSet<>(Set.of(Role.ROLE_USER)))
                 .build();
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 
 
@@ -116,6 +116,46 @@ public class UserServices {
             return userRepository.save(user);
         }
         return null;
+    }
+
+    public List<FindUserResponse> findByName(String name) throws Exception {
+        if (name == null || name.isEmpty()) {
+            List<User> users = userRepository.findAll();
+            return users.stream()
+                    .map(this::convertToFindUserRequest)
+                    .collect(Collectors.toList());
+        } else {
+            List<User> users = userRepository.findByNameContainingIgnoreCase(name);
+            if (users == null || users.isEmpty()) {
+                throw new Exception("User not found");
+            }
+            return users.stream()
+                    .map(this::convertToFindUserRequest)
+                    .collect(Collectors.toList());
+        }
+    }
+
+    private FindUserResponse convertToFindUserRequest(User user) {
+        return FindUserResponse.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .active(user.getActive())
+                .profilePicture(user.getProfilePicture())
+                .biography(user.getBiography())
+                .address(user.getAddress())
+                .build();
+    }
+
+    public void updateActive(Integer id) {
+        Optional<User> user = userRepository.findById(id);
+        if (user.isPresent()) {
+            User userEntity = user.get();
+            userEntity.setActive(!userEntity.getActive());
+            userRepository.save(userEntity);
+        } else {
+            throw new UserNotFoundException(id);
+        }
     }
 
     public Optional<User> findByEmail(String email) {

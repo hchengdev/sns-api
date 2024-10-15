@@ -43,8 +43,7 @@ public class UserController {
         }
     }
 
-
-    @GetMapping("api/v1/user/{id}")
+    @GetMapping("api/v1/users/{id}")
     public ResponseEntity<User> getUserById(@PathVariable int id) {
         userService.findById(id);
         return ResponseEntity.ok(userService.findById(id));
@@ -106,7 +105,7 @@ public class UserController {
             if (userService.updatePassword(id, request.getNewPassword(), request.getCurrentPassword()) != null) {
                 return ResponseEntity.ok("user updated successfully");
             }
-            return ResponseEntity.status(500).body("Incorrect password");
+            return ResponseEntity.badRequest().body("Incorrect password");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
         }
@@ -117,5 +116,25 @@ public class UserController {
         List<NewUserByMonthResponse> data = userService.getUserNumberByMonthOfYear(year);
 
         return ResponseEntity.status(HttpStatus.OK).body(data);
+    }
+
+    @GetMapping("/api/v1/users") // GET : /api/v1/users?name=hien
+    public ResponseEntity<?> findFriendsByName(@RequestParam(name = "name", required = false) String name) {
+        try {
+            List<FindUserResponse> findFriendsByName = userService.findByName(name);
+            if (findFriendsByName.isEmpty()) {
+                return ResponseEntity.ok("Không tìm thấy người dùng.");
+            }
+            return ResponseEntity.ok(findFriendsByName);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Tìm kiếm bạn bè thất bại.");
+        }
+    }
+
+    @GetMapping ("api/v1/users/{id}/block")
+    public ResponseEntity<String> blockUser(@PathVariable int id) {
+            userService.updateActive(id);
+            return ResponseEntity.ok("Đã chặn người dùng.");
     }
 }

@@ -11,6 +11,9 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByEmail(String email);
+
+    List<User> findByNameContainingIgnoreCase(@Param("name") String name);
+
     boolean existsByEmail(String email);
 
     // number of user by month of a year
