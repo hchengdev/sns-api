@@ -110,7 +110,7 @@ public class UserController {
         }
     }
     @GetMapping("/api/v1/users") // GET : /api/v1/users?name=hien
-    public ResponseEntity<?> findFriendsByName(@RequestParam(name = "name") String name) {
+    public ResponseEntity<?> findFriendsByName(@RequestParam(name = "name", required = false) String name) {
         try {
             List<FindUserResponse> findFriendsByName = userService.findByName(name);
             if (findFriendsByName.isEmpty()) {

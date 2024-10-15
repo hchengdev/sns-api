@@ -73,7 +73,7 @@ public class UserServices {
                 .active(true)
                 .roles(new HashSet<>(Set.of(Role.ROLE_USER)))
                 .build();
-       return userRepository.save(user);
+        return userRepository.save(user);
     }
 
 
@@ -119,14 +119,20 @@ public class UserServices {
     }
 
     public List<FindUserResponse> findByName(String name) throws Exception {
-        List<User> users = userRepository.findByNameContainingIgnoreCase(name);
-        if (users == null || users.isEmpty()) {
-            throw new Exception("User not found");
+        if (name == null || name.isEmpty()) {
+            List<User> users = userRepository.findAll();
+            return users.stream()
+                    .map(this::convertToFindUserRequest)
+                    .collect(Collectors.toList());
+        } else {
+            List<User> users = userRepository.findByNameContainingIgnoreCase(name);
+            if (users == null || users.isEmpty()) {
+                throw new Exception("User not found");
+            }
+            return users.stream()
+                    .map(this::convertToFindUserRequest)
+                    .collect(Collectors.toList());
         }
-
-        return users.stream()
-                .map(this::convertToFindUserRequest)
-                .collect(Collectors.toList());
     }
 
     private FindUserResponse convertToFindUserRequest(User user) {
@@ -140,7 +146,6 @@ public class UserServices {
                 .address(user.getAddress())
                 .build();
     }
-
 
 
     public Optional<User> findByEmail(String email) {
