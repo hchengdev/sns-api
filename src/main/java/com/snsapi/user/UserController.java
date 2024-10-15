@@ -5,6 +5,7 @@ import com.snsapi.exception.UserNotFoundException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -109,6 +110,14 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
         }
     }
+
+    @GetMapping("/api/v1/users/new-users")
+    public ResponseEntity<List<NewUserByMonthResponse>> getUserNumberByMonthOfYear(@RequestParam(name ="year") int year) {
+        List<NewUserByMonthResponse> data = userService.getUserNumberByMonthOfYear(year);
+
+        return ResponseEntity.status(HttpStatus.OK).body(data);
+    }
+
     @GetMapping("/api/v1/users") // GET : /api/v1/users?name=hien
     public ResponseEntity<?> findFriendsByName(@RequestParam(name = "name", required = false) String name) {
         try {
@@ -128,5 +137,4 @@ public class UserController {
             userService.updateActive(id);
             return ResponseEntity.ok("Đã chặn người dùng.");
     }
-
 }
