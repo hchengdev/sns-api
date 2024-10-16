@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -118,16 +119,13 @@ public class UserController {
     }
 
     @GetMapping("/api/v1/users") // GET : /api/v1/users?name=hien
-    public ResponseEntity<?> findFriendsByName(@RequestParam(name = "name", required = false) String name) {
+    public ResponseEntity<List<FindUserResponse>> findFriendsByName(@RequestParam(name = "name", required = false) String name) {
         try {
             List<FindUserResponse> findFriendsByName = userService.findByName(name);
-            if (findFriendsByName.isEmpty()) {
-                return ResponseEntity.ok("Không tìm thấy người dùng.");
-            }
             return ResponseEntity.ok(findFriendsByName);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().body("Tìm kiếm bạn bè thất bại.");
+            return ResponseEntity.badRequest().body(new ArrayList<>());
         }
     }
 
