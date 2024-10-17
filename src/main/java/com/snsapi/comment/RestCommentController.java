@@ -29,6 +29,12 @@ public class RestCommentController {
         return ResponseEntity.ok(comments);
     }
 
+    @GetMapping("/post/{postId}/count")
+    public ResponseEntity<Integer> countCommentsForPost(@PathVariable Integer postId) {
+        int commentCount = commentService.countCommentsForPost(postId);
+        return ResponseEntity.ok(commentCount);
+    }
+
     @PostMapping
     public ResponseEntity<CommentDTO> createComment(@RequestBody CommentDTO commentDTO) {
         if (commentDTO.getContent() == null || commentDTO.getContent().trim().isEmpty()) {

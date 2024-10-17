@@ -87,6 +87,10 @@ public class CommentService {
         return convertToDTO(savedReply);
     }
 
+    public int countCommentsForPost(Integer postId) {
+        return commentRepository.countByPostId(postId);
+    }
+
     public void toggleLikeComment(Integer commentId, Integer userId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new EntityNotFoundException("Bình luận không tồn tại."));
