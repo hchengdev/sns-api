@@ -1,6 +1,5 @@
 package com.snsapi.post;
 
-import com.snsapi.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -9,7 +8,6 @@ import java.util.List;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Integer> {
-    List<Post> findByUser(User user);
 
     @Query("SELECT COUNT(u) FROM Post p JOIN p.likeUsers u WHERE p.id = :postId")
     long countLikesByPostId(Integer postId);
@@ -21,5 +19,4 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 
     @Query("SELECT p FROM Post p WHERE p.content LIKE %:content%")
     List<Post> findByContent(String content);
-    List<Post> findByUserId(Integer userId);
 }

@@ -1,7 +1,9 @@
 package com.snsapi.post;
 
+import com.snsapi.comment.CommentDTO;
 import com.snsapi.like.LikeDTO;
 import com.snsapi.media.MediaDTO;
+import com.snsapi.user.UserDTO;
 import com.snsapi.utils.DateConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -41,14 +43,29 @@ public class PostController {
 
             postDTO.setMedia(mediaDTOs);
 
-            List<LikeDTO> likeDTOs = post.getLikeUsers().stream().map(like -> {
-                LikeDTO likeDTO = new LikeDTO();
-                likeDTO.setId(like.getId());
-                likeDTO.setName(like.getName());
-                return likeDTO;
+            List<UserDTO> likeUsers = post.getLikeUsers().stream()
+                    .map(user -> {
+                        UserDTO userDTO = new UserDTO();
+                        userDTO.setId(user.getId());
+                        userDTO.setName(user.getName());
+                        return userDTO;
+                    }).collect(Collectors.toList());
+
+            List<CommentDTO> commentDTOs = post.getComments().stream().map(comment -> {
+                CommentDTO commentDTO = new CommentDTO();
+                commentDTO.setId(comment.getId());
+                commentDTO.setUserId(comment.getUser().getId());
+                commentDTO.setContent(comment.getContent());
+                commentDTO.setCreatedAt(DateConverter.localDateTimeToDateWithSlash(comment.getCreatedAt()));
+                return commentDTO;
             }).collect(Collectors.toList());
 
-            postDTO.setLikes(likeDTOs);
+            postDTO.setComments(commentDTOs);
+
+            LikeDTO likeDTO = new LikeDTO();
+            likeDTO.setLikeCount(likeUsers.size());
+            likeDTO.setLikeByUsers(likeUsers);
+            postDTO.setLikes(likeDTO);
 
             return postDTO;
         }).collect(Collectors.toList());
