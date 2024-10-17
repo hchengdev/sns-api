@@ -1,14 +1,13 @@
 package com.snsapi.comment;
 
 import com.snsapi.like.LikeDTO;
-import com.snsapi.post.Post;
 import com.snsapi.post.PostRepository;
 import com.snsapi.user.User;
+import com.snsapi.user.UserDTO;
 import com.snsapi.user.UserServices;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -17,119 +16,82 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1/posts/{postId}/comments")
-@CrossOrigin("*")
+@RequestMapping("/api/v1/comments")
 @RequiredArgsConstructor
 public class RestCommentController {
-
     private final CommentService commentService;
     private final PostRepository postRepository;
     private final UserServices userServices;
 
     @GetMapping
-    @PreAuthorize("hasAuthority('ROLE_USER')")
-    public ResponseEntity<CommentResponse> getAllCommentsByPostId(@PathVariable Integer postId) {
-        List<Comment> comments = commentService.getAllCommentsByPostId(postId);
-
-        List<CommentDTO> commentDTOs = comments.stream()
-                .map(comment -> new CommentDTO(
-                        comment.getId(),
-                        comment.getUser().getId(),
-                        comment.getPost().getId(),
-                        comment.getContent(),
-                        comment.getCreatedAt(),
-                        comment.getUpdatedAt(),
-                        comment.getLikeUsers().stream()
-                                .map(user -> new LikeDTO(
-                                        user.getId(),
-                                        user.getName()
-                                )).collect(Collectors.toList())
-                ))
-                .collect(Collectors.toList());
-
-        CommentResponse response = new CommentResponse(commentDTOs);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<List<CommentDTO>> getAllComments() {
+        List<CommentDTO> comments = commentService.getAllComments();
+        return ResponseEntity.ok(comments);
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('ROLE_USER')")
-    public ResponseEntity<CommentDTO> createComment(@PathVariable Integer postId,
-                                                    @RequestParam Integer userId,
-                                                    @RequestBody CommentRequest commentRequest) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("Bài viết không tồn tại."));
-
-        if (post.getVisibility() == Post.VisibilityEnum.PRIVATE) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+    public ResponseEntity<CommentDTO> createComment(@RequestBody CommentDTO commentDTO) {
+        if (commentDTO.getContent() == null || commentDTO.getContent().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(null);
         }
 
-        Comment comment = commentService.createComment(postId, userId, commentRequest.getContent());
+        CommentDTO savedComment = commentService.saveComment(commentDTO.getUserId(), commentDTO.getPostId(), commentDTO.getContent());
 
-        CommentDTO commentDTO = new CommentDTO(
-                comment.getId(),
-                userId,
-                postId,
-                comment.getContent(),
-                comment.getCreatedAt(),
-                comment.getUpdatedAt(),
-                null
-        );
+        CommentDTO responseComment = new CommentDTO();
+        responseComment.setId(savedComment.getId());
+        responseComment.setUserId(savedComment.getUserId());
+        responseComment.setPostId(savedComment.getPostId());
+        responseComment.setContent(savedComment.getContent());
+        responseComment.setCreatedAt(savedComment.getCreatedAt());
+        responseComment.setReplies(savedComment.getReplies());
+        responseComment.setLikes(savedComment.getLikes());
 
-        return ResponseEntity.ok(commentDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseComment);
+    }
+
+    @PostMapping("/{commentId}/replies")
+    public ResponseEntity<CommentDTO> createReply(@PathVariable Integer commentId, @RequestBody CommentDTO replyDTO) {
+        if (replyDTO.getContent() == null || replyDTO.getContent().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        CommentDTO savedReply = commentService.saveReply(replyDTO.getUserId(), replyDTO.getPostId(), commentId, replyDTO.getContent());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedReply);
     }
 
     @PutMapping("/{commentId}")
-    @PreAuthorize("hasAuthority('ROLE_USER')")
-    public ResponseEntity<CommentDTO> updateComment(
-            @PathVariable("commentId") Integer commentId,
-            @RequestBody CommentRequest commentRequest) {
-        Comment updatedComment = commentService.updateComment(commentId, commentRequest.getContent());
-
-        CommentDTO commentDTO = new CommentDTO(
-                updatedComment.getId(),
-                updatedComment.getUser().getId(),
-                updatedComment.getPost().getId(),
-                updatedComment.getContent(),
-                updatedComment.getCreatedAt(),
-                updatedComment.getUpdatedAt(),
-                updatedComment.getLikeUsers().stream()
-                        .map(user -> new LikeDTO(user.getId()))
-                        .collect(Collectors.toList())
-        );
-        return ResponseEntity.ok(commentDTO);
+    public ResponseEntity<CommentDTO> updateComment(@PathVariable Integer commentId,
+                                                    @RequestBody CommentDTO commentDTO) {
+        CommentDTO updatedComment = commentService.updateComment(commentId, commentDTO.getContent());
+        return ResponseEntity.ok(updatedComment);
     }
 
     @DeleteMapping("/{commentId}")
-    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<Void> deleteComment(@PathVariable Integer commentId) {
         commentService.deleteComment(commentId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{commentId}/likes")
-    @PreAuthorize("hasAuthority('ROLE_USER')")
-    public ResponseEntity<Void> likeComment(@PathVariable Integer commentId,
-                                            Principal principal) {
+    public ResponseEntity<LikeDTO> toggleLikeComment(@PathVariable Integer commentId, Principal principal) {
         String email = principal.getName();
         Optional<User> user = userServices.findByEmail(email);
-        commentService.likeComment(commentId, user.get().getId());
-        return ResponseEntity.ok().build();
-    }
 
-    @DeleteMapping("/{commentId}/likes")
-    @PreAuthorize("hasAuthority('ROLE_USER')")
-    public ResponseEntity<Void> unlikeComment(@PathVariable Integer commentId,
-                                              Principal principal) {
-        String email = principal.getName();
-        Optional<User> user = userServices.findByEmail(email);
-        commentService.unlikeComment(commentId, user.get().getId());
-        return ResponseEntity.ok().build();
-    }
+        if (user.isPresent()) {
+            commentService.toggleLikeComment(commentId, user.get().getId());
 
-    @GetMapping("/{commentId}/likes/count")
-    @PreAuthorize("hasAuthority('ROLE_USER')")
-    public ResponseEntity<Integer> countLikes(@PathVariable Integer commentId) {
-        int likeCount = commentService.countLikes(commentId);
-        return ResponseEntity.ok(likeCount);
+            int likeCount = commentService.countLikes(commentId);
+            List<User> likedUsers = commentService.getUsersWhoLikedComment(commentId);
+
+            List<UserDTO> userDTOs = likedUsers.stream()
+                    .map(likedUser -> new UserDTO(likedUser.getId(), likedUser.getName(), likedUser.getProfilePicture()))
+                    .collect(Collectors.toList());
+
+            LikeDTO response = new LikeDTO(likeCount, userDTOs);
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 }
