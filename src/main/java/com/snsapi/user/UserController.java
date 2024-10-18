@@ -199,32 +199,6 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
     }
 
-    @GetMapping("/api/v1/users/new-users")
-    public ResponseEntity<List<NewUserByMonthResponse>> getUserNumberByMonthOfYear(@RequestParam(name = "year") int year) {
-        List<NewUserByMonthResponse> data = userService.getUserNumberByMonthOfYear(year);
 
-        return ResponseEntity.status(HttpStatus.OK).body(data);
-    }
 
-    @GetMapping("/api/v1/users") // GET : /api/v1/users?name=hien
-    public ResponseEntity<List<FindUserResponse>> findFriendsByName(@RequestParam(name = "name", required = false) String name) {
-        try {
-            List<FindUserResponse> findFriendsByName = userService.findByName(name);
-            return ResponseEntity.ok(findFriendsByName);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body(new ArrayList<>());
-        }
-    }
-
-    @PutMapping("api/v1/users/{id}/block")
-    public ResponseEntity<User> blockUser(@PathVariable int id) {
-        User user = userService.updateActive(id);
-        if (!user.getActive()) {
-            return ResponseEntity.ok(user);
-
-        } else {
-            return ResponseEntity.ok(user);
-        }
-    }
 }

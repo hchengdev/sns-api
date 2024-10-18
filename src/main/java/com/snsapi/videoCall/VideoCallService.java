@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 public class VideoCallService {
     private final IVideoCallRepository videoCallRepository;
 
-    public void videoCall (Integer userId, Integer friendId) {
+    public void videoCall(Integer userId, Integer friendId) {
         VideoCall videoCall = VideoCall.builder()
                 .user(User.builder().id(userId).build())
                 .friend(User.builder().id(friendId).build())
@@ -19,11 +19,9 @@ public class VideoCallService {
     }
 
     public void acceptVideoCall(Integer friendId, Integer userId) {
-        VideoCall videoCall = videoCallRepository.findById(friendId)
+        User videoCall = videoCallRepository.findById(friendId)
                 .orElseThrow(() -> new IllegalArgumentException("Video call không tồn tại!!"));
-        videoCall.setVideoCallStatus(VideoCallStatus.ACCEPTED);
+//        videoCall.setVideoCallStatus(VideoCallStatus.ACCEPTED);
         videoCallRepository.save(videoCall);
     }
-
-
 }
