@@ -23,5 +23,9 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     // number of user by week of a month in a year
 //    @Query(value = "SELECT WEEK(creation_date) as inWeek, COUNT(*) as 'NumberOfUsers' FROM users WHERE YEAR(creation_date) =:year AND MONT(creation_date) = :month GROUP BY WEEK(creation_date)", nativeQuery = true)
 //    List<User> getUserNumberByWeekOfMonthOfYear(@Param("month") int month, @Param("year") int year);
+
+    @Query("SELECT u FROM User u WHERE LOWER(u.name) LIKE LOWER(CONCAT('%' ,:name, '%'))")
+    List<User> findByName(@Param("name") String name);
+
 }
 

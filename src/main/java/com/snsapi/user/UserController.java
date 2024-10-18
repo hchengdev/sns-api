@@ -3,10 +3,7 @@ package com.snsapi.user;
 import com.snsapi.config.jwt.JwtService;
 import com.snsapi.exception.UserNotFoundException;
 import com.snsapi.friend.AddFriendService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -115,15 +112,40 @@ public class UserController {
         }
     }
 
+    @GetMapping("/api/v1/users/new-users")
+    public ResponseEntity<List<NewUserByMonthResponse>> getUserNumberByMonthOfYear(@RequestParam(name = "year") int year) {
+        List<NewUserByMonthResponse> data = userService.getUserNumberByMonthOfYear(year);
+
+        return ResponseEntity.status(HttpStatus.OK).body(data);
+    }
+
+    @GetMapping("/api/v1/users") // GET : /api/v1/users?name=hien
+    public ResponseEntity<?> findFriendsByName(@RequestParam(name = "name", required = false) String name) {
+        try {
+            List<FindUserResponse> findFriendsByName = userService.findByName(name);
+            if (findFriendsByName.isEmpty()) {
+                return ResponseEntity.ok("Không tìm thấy người dùng.");
+            }
+            return ResponseEntity.ok(findFriendsByName);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Tìm kiếm bạn bè thất bại.");
+        }
+    }
+
+    @GetMapping("api/v1/users/{id}/block")
+    public ResponseEntity<String> blockUser(@PathVariable int id) {
+        userService.updateActive(id);
+        return ResponseEntity.ok("Đã chặn người dùng.");
+    }
+
     @GetMapping("/api/v1/me/friends")
     public ResponseEntity<?> getFriends(@RequestHeader("Authorization") String token) {
         try {
             token = token.startsWith("Bearer") ? token.substring(7) : token;
             int id = jwtService.getUserIdFromToken(token);
-            List<User> findAllFriends = addFriendService.findAllFriends(id);
-            if (findAllFriends.isEmpty()) {
-                return ResponseEntity.ok("Không có bạn bè.");
-            }
+            List<UserDTO> findAllFriends = addFriendService.findAllFriends(id);
+
             return ResponseEntity.ok(findAllFriends);
         } catch (Exception e) {
             e.printStackTrace();
@@ -131,18 +153,50 @@ public class UserController {
         }
     }
 
-    @GetMapping("/api/v1/me/{id}/friends")
+    @GetMapping("/api/v1/me/user/{id}/friends")
     public ResponseEntity<?> getFriends(@PathVariable("id") Integer friendId) {
         try {
-            List<User> findAllFriends = addFriendService.findAllFriends(friendId);
-            if (findAllFriends.isEmpty()) {
-                return ResponseEntity.ok("Không có bạn bè.");
-            }
+            List<UserDTO> findAllFriends = addFriendService.findAllFriendsByStatus(friendId);
             return ResponseEntity.ok(findAllFriends);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body("Lấy danh sách bạn bè thất bại.");
         }
+    }
+
+    @GetMapping("/api/v1/me/waiting-users")
+    public ResponseEntity<?> getWaitingUsers(@RequestHeader("Authorization") String token) {
+        try {
+            token = token.startsWith("Bearer") ? token.substring(7) : token;
+            int id = jwtService.getUserIdFromToken(token);
+            List<UserDTO> waitingUsers = addFriendService.findAllWaitingUser(id);
+            return ResponseEntity.ok(waitingUsers);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Lấy danh sách người dùng đang đ��i thất bại.");
+        }
+    }
+
+    @GetMapping("/api/v1/me/waiting-friend")
+    public ResponseEntity<?> getWaitingFriend(@RequestHeader("Authorization") String token) {
+        try {
+            token = token.startsWith("Bearer") ? token.substring(7) : token;
+            int id = jwtService.getUserIdFromToken(token);
+            List<UserDTO> waitingUsers = addFriendService.findAllFriendWaiting(id);
+            return ResponseEntity.ok(waitingUsers);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Lấy danh sách người dùng đang đ��i thất bại.");
+        }
+    }
+
+    @GetMapping("/api/v1/user")
+    public ResponseEntity<?> getUserByUsername(@RequestParam(name = "username", required = false) String username) throws Exception {
+            if (username != null) {
+                List<UserDTO> user = userService.findUserByName(username);
+                return ResponseEntity.ok(user);
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
     }
 
     @GetMapping("/api/v1/users/new-users")

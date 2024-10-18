@@ -17,4 +17,13 @@ public class VideoCallService {
                 .build();
 //        videoCallRepository.save(videoCall);
     }
+
+    public void acceptVideoCall(Integer friendId, Integer userId) {
+        VideoCall videoCall = videoCallRepository.findById(friendId)
+                .orElseThrow(() -> new IllegalArgumentException("Video call không tồn tại!!"));
+        videoCall.setVideoCallStatus(VideoCallStatus.ACCEPTED);
+        videoCallRepository.save(videoCall);
+    }
+
+
 }

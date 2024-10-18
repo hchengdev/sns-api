@@ -1,5 +1,6 @@
 package com.snsapi.user;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -85,6 +86,10 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Set<Role> roles = new HashSet<>();
 
+    public boolean isFriend(User user) {
+        return friends.stream().anyMatch(f -> f.getFriend().getId().equals(user.getId()));
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authorities = new ArrayList<>();
@@ -120,7 +125,13 @@ public class User implements UserDetails {
     }
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonBackReference
     private List<AddFriend> friends = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status_friend", nullable = false)
+    private StatusFriend statusFriend = StatusFriend.PUBLIC;
+
 }
 
 

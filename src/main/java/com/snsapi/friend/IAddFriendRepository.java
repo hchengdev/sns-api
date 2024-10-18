@@ -1,6 +1,7 @@
 package com.snsapi.friend;
 
 import com.snsapi.user.User;
+import com.snsapi.user.UserDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,6 +23,26 @@ public interface IAddFriendRepository extends JpaRepository<AddFriend, Integer> 
             "AND uf2.status = 'ACCEPTED'")
     List<Integer> findMutualFriends(@Param("userId1") Integer userId1, @Param("userId2") Integer userId2);
 
-    @Query("SELECT u FROM User u join AddFriend af on u.id = af.friend.id WHERE (af.user.id = :user OR af.friend.id = :user) AND af.status = 'ACCEPTED'")
-    List<User> findAllAcceptedFriends(@Param("user") Integer userId);
+    @Query("SELECT CASE WHEN af.user.id = :userId THEN af.friend.id ELSE af.user.id END " +
+            "FROM AddFriend af " +
+            "WHERE (af.user.id = :userId OR af.friend.id = :userId) " +
+            "AND af.status = 'ACCEPTED'")
+    List<Integer> findAllFriendIds(@Param("userId") Integer userId);
+
+    @Query("SELECT new com.snsapi.user.UserDTO(u.id, u.name, u.profilePicture) FROM User u WHERE u.id IN :friendIds")
+    List<UserDTO> findFriendDetails(@Param("friendIds") List<Integer> friendIds);
+
+    @Query("SELECT CASE WHEN af.user.id = :userId THEN af.friend.id ELSE af.user.id END " +
+            "FROM AddFriend af " +
+            "WHERE (af.user.id = :userId ) " +
+            "AND af.status = 'PENDING'")
+    List<Integer> findAllUserWaiting(@Param("userId") Integer userId);
+
+    @Query("SELECT CASE WHEN af.user.id = :userId THEN af.friend.id ELSE af.user.id END " +
+            "FROM AddFriend af " +
+            "WHERE (af.friend.id = :userId ) " +
+            "AND af.status = 'PENDING'")
+    List<Integer> findAllFriendWaiting(@Param("userId") Integer userId);
 }
+
+
