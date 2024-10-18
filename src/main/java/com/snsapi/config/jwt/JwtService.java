@@ -23,6 +23,7 @@ public class JwtService {
 
         return Jwts.builder()
                 .claim("id", userPrincipal.getId())
+                .claim("name", userPrincipal.getName())
                 .setSubject(userPrincipal.getEmail())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRE_TIME))
@@ -53,7 +54,7 @@ public class JwtService {
                 .setSigningKey(SECRET_KEY)
                 .parseClaimsJws(token.replace("Bearer ", ""))
                 .getBody();
-        return (int) claims.get("id");
+        return (Integer) claims.get("id");
     }
     public String getUsernameFromJwtToken(String token) {
         return Jwts.parserBuilder()

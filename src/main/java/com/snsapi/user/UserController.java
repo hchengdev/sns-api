@@ -6,6 +6,7 @@ import com.snsapi.friend.AddFriendService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -45,7 +47,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("api/v1/user/{id}")
+    @GetMapping("api/v1/users/{id}")
     public ResponseEntity<User> getUserById(@PathVariable int id) {
         userService.findById(id);
         return ResponseEntity.ok(userService.findById(id));
@@ -107,7 +109,7 @@ public class UserController {
             if (userService.updatePassword(id, request.getNewPassword(), request.getCurrentPassword()) != null) {
                 return ResponseEntity.ok("user updated successfully");
             }
-            return ResponseEntity.status(500).body("Incorrect password");
+            return ResponseEntity.badRequest().body("Incorrect password");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
         }
@@ -140,6 +142,33 @@ public class UserController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body("Lấy danh sách bạn bè thất bại.");
+
+    @GetMapping("/api/v1/users/new-users")
+    public ResponseEntity<List<NewUserByMonthResponse>> getUserNumberByMonthOfYear(@RequestParam(name ="year") int year) {
+        List<NewUserByMonthResponse> data = userService.getUserNumberByMonthOfYear(year);
+
+        return ResponseEntity.status(HttpStatus.OK).body(data);
+    }
+
+    @GetMapping("/api/v1/users") // GET : /api/v1/users?name=hien
+    public ResponseEntity<List<FindUserResponse>> findFriendsByName(@RequestParam(name = "name", required = false) String name) {
+        try {
+            List<FindUserResponse> findFriendsByName = userService.findByName(name);
+            return ResponseEntity.ok(findFriendsByName);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(new ArrayList<>());
+        }
+    }
+
+    @PutMapping("api/v1/users/{id}/block")
+    public ResponseEntity<User> blockUser(@PathVariable int id) {
+        User user = userService.updateActive(id);
+        if (!user.getActive()) {
+            return ResponseEntity.ok(user);
+
+        } else {
+            return ResponseEntity.ok(user);
         }
     }
 }

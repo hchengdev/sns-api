@@ -12,15 +12,15 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.Serializable;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -53,6 +53,15 @@ public class AuthController {
 
     @PostMapping("/api/v1/login")
     public ResponseEntity<?> login(@RequestBody User user) {
+        Optional<User> currentUser = userDetailsService.findByUserEmail(user.getEmail());
+
+        if (!currentUser.isPresent()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Người dùng không tìm thấy");
+        }
+
+        if (!currentUser.get().getActive()) {
+            return ResponseEntity.status(403).body("Người dùng bị ban vĩnh viễn");
+        }
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword())
@@ -60,19 +69,15 @@ public class AuthController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtService.generateTokenLogin(authentication);
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            Optional<User> currentUser = userDetailsService.findByUserEmail(user.getEmail());
 
-            if (!currentUser.isPresent()) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Người dùng không tìm thấy");
-            }
-
-            return ResponseEntity.ok(new JwtResponse(currentUser.get().getId(), jwt, userDetails.getUsername()));
-        } catch (DisabledException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Người dùng bị vô hiệu hóa");
+            return ResponseEntity.ok(new JwtResponse(currentUser.get().getId(), jwt, currentUser.get().getName(), userDetails.getUsername(), currentUser.get().getProfilePicture(), currentUser.get().getRoles().toString()));
+        } catch (AuthenticationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Thông tin đăng nhập không chính xác");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi: " + e.getMessage());
         }
     }
+
 
     @GetMapping("/v1/auth/google")
     public ResponseEntity<String> googleLogin() {
@@ -94,25 +99,26 @@ public class AuthController {
     }
 
     @GetMapping("/auth/google/callback")
-    public ResponseEntity<String> googleCallback(@RequestParam String code) {
+    public ResponseEntity<Map<String, Serializable>> googleCallback(@RequestParam String code) {
         try {
             String accessToken = getAccessToken(code);
-
             Map<String, Object> userAttributes = getUserInfo(accessToken);
-
             String email = (String) userAttributes.get("email");
-
-            if (userServices.findByEmail(email) == null) {
-                userServices.saveGG(email);
+            if (userServices.findByEmail(email).isEmpty()) {
+                User user = userServices.saveGG(email);
                 System.out.println(userServices.findByEmail(email));
-                return ResponseEntity.status(HttpStatus.CREATED).body("Đăng ký thành công");
+                return ResponseEntity.status(HttpStatus.CREATED)
+                        .body(Map.of("email", email, "password", user.getPassword()));
             } else {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body("Email đã tồn tại");
+                Long password = 123456789L;
+                return ResponseEntity.ok(Map.of("email", email, "password", password));
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Authentication failed: " + e.getMessage()));
         }
     }
+
 
     private String getAccessToken(String code) {
         RestTemplate restTemplate = new RestTemplate();
