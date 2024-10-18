@@ -12,6 +12,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.LinkedMultiValueMap;
@@ -52,6 +53,15 @@ public class AuthController {
 
     @PostMapping("/api/v1/login")
     public ResponseEntity<?> login(@RequestBody User user) {
+        Optional<User> currentUser = userDetailsService.findByUserEmail(user.getEmail());
+
+        if (!currentUser.isPresent()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Người dùng không tìm thấy");
+        }
+
+        if (!currentUser.get().getActive()) {
+            return ResponseEntity.status(403).body("Người dùng bị ban vĩnh viễn");
+        }
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword())
@@ -59,19 +69,15 @@ public class AuthController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtService.generateTokenLogin(authentication);
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            Optional<User> currentUser = userDetailsService.findByUserEmail(user.getEmail());
 
-            if (!currentUser.isPresent()) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Người dùng không tìm thấy");
-            }
-
-            return ResponseEntity.ok(new JwtResponse(currentUser.get().getId(), jwt, currentUser.get().getName(),userDetails.getUsername(), currentUser.get().getProfilePicture(), currentUser.get().getRoles().toString()));
-        } catch (DisabledException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Người dùng bị vô hiệu hóa");
+            return ResponseEntity.ok(new JwtResponse(currentUser.get().getId(), jwt, currentUser.get().getName(), userDetails.getUsername(), currentUser.get().getProfilePicture(), currentUser.get().getRoles().toString()));
+        } catch (AuthenticationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Thông tin đăng nhập không chính xác");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi: " + e.getMessage());
         }
     }
+
 
     @GetMapping("/v1/auth/google")
     public ResponseEntity<String> googleLogin() {
@@ -105,7 +111,7 @@ public class AuthController {
                         .body(Map.of("email", email, "password", user.getPassword()));
             } else {
                 Long password = 123456789L;
-                return ResponseEntity.ok(Map.of("email", email, "password",password));
+                return ResponseEntity.ok(Map.of("email", email, "password", password));
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
