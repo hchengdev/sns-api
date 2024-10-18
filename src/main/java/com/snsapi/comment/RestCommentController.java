@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
@@ -29,46 +30,90 @@ public class RestCommentController {
         return ResponseEntity.ok(comments);
     }
 
-    @PostMapping
-    public ResponseEntity<CommentDTO> createComment(@RequestBody CommentDTO commentDTO) {
-        if (commentDTO.getContent() == null || commentDTO.getContent().trim().isEmpty()) {
-            return ResponseEntity.badRequest().body(null);
-        }
-
-        CommentDTO savedComment = commentService.saveComment(commentDTO.getUserId(), commentDTO.getPostId(), commentDTO.getContent());
-
-        CommentDTO responseComment = new CommentDTO();
-        responseComment.setId(savedComment.getId());
-        responseComment.setUserId(savedComment.getUserId());
-        responseComment.setPostId(savedComment.getPostId());
-        responseComment.setContent(savedComment.getContent());
-        responseComment.setCreatedAt(savedComment.getCreatedAt());
-        responseComment.setReplies(savedComment.getReplies());
-        responseComment.setLikes(savedComment.getLikes());
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseComment);
+    @GetMapping("/post/{postId}/count")
+    public ResponseEntity<Integer> countCommentsForPost(@PathVariable Integer postId) {
+        int commentCount = commentService.countCommentsForPost(postId);
+        return ResponseEntity.ok(commentCount);
     }
 
+    @PostMapping
+    public ResponseEntity<?> createComment(@RequestBody CommentDTO commentDTO) {
+        if (commentDTO.getContent() == null || commentDTO.getContent().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Nội dung bình luận không được để trống.");
+        }
+
+        try {
+            Integer userId = commentDTO.getUserId();
+            Integer postId = commentDTO.getPostId();
+
+            CommentDTO savedComment = commentService.saveComment(userId, postId, commentDTO.getContent());
+
+            UserDTO userDTO = new UserDTO();
+            userDTO.setId(savedComment.getUserId());
+            userDTO.setName(savedComment.getCreatedBy().getName());
+            userDTO.setProfilePicture(savedComment.getCreatedBy().getProfilePicture());
+
+            savedComment.setCreatedBy(userDTO);
+
+            return ResponseEntity.created(URI.create("/api/v1/comments/" + savedComment.getId())).body(savedComment);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Đã xảy ra lỗi khi lưu bình luận: " + e.getMessage());
+        }
+    }
+
+
     @PostMapping("/{commentId}/replies")
-    public ResponseEntity<CommentDTO> createReply(@PathVariable Integer commentId, @RequestBody CommentDTO replyDTO) {
+    public ResponseEntity<CommentDTO> createReply(@PathVariable Integer commentId, @RequestBody CommentDTO replyDTO, Principal principal) {
         if (replyDTO.getContent() == null || replyDTO.getContent().trim().isEmpty()) {
             return ResponseEntity.badRequest().body(null);
         }
 
-        CommentDTO savedReply = commentService.saveReply(replyDTO.getUserId(), replyDTO.getPostId(), commentId, replyDTO.getContent());
+        String email = principal.getName();
+        Optional<User> user = userServices.findByEmail(email);
+
+        if (!user.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        CommentDTO savedReply = commentService.saveReply(user.get().getId(), replyDTO.getPostId(), commentId, replyDTO.getContent());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(savedReply);
     }
 
     @PutMapping("/{commentId}")
     public ResponseEntity<CommentDTO> updateComment(@PathVariable Integer commentId,
-                                                    @RequestBody CommentDTO commentDTO) {
+                                                    @RequestBody CommentDTO commentDTO, Principal principal) {
+        String email = principal.getName();
+        Optional<User> user = userServices.findByEmail(email);
+
+        if (!user.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        Comment existingComment = commentService.findCommentById(commentId);
+        if (!existingComment.getUser().getId().equals(user.get().getId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         CommentDTO updatedComment = commentService.updateComment(commentId, commentDTO.getContent());
         return ResponseEntity.ok(updatedComment);
     }
 
     @DeleteMapping("/{commentId}")
-    public ResponseEntity<Void> deleteComment(@PathVariable Integer commentId) {
+    public ResponseEntity<Void> deleteComment(@PathVariable Integer commentId, Principal principal) {
+        String email = principal.getName();
+        Optional<User> user = userServices.findByEmail(email);
+
+        if (!user.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        Comment existingComment = commentService.findCommentById(commentId);
+        if (!existingComment.getUser().getId().equals(user.get().getId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         commentService.deleteComment(commentId);
         return ResponseEntity.noContent().build();
     }

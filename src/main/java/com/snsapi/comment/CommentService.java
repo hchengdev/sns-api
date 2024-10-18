@@ -6,6 +6,7 @@ import com.snsapi.post.PostRepository;
 import com.snsapi.user.User;
 import com.snsapi.user.UserDTO;
 import com.snsapi.user.UserRepository;
+import com.snsapi.user.UserServices;
 import com.snsapi.utils.DateConverter;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,6 +25,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final UserServices userServices;
 
     public List<CommentDTO> getAllComments() {
         return commentRepository.findAll().stream()
@@ -44,6 +47,7 @@ public class CommentService {
 
         return convertToDTO(commentRepository.save(comment));
     }
+
 
     public CommentDTO updateComment(Integer commentId, String content) {
         Comment comment = commentRepository.findById(commentId)
@@ -87,6 +91,10 @@ public class CommentService {
         return convertToDTO(savedReply);
     }
 
+    public int countCommentsForPost(Integer postId) {
+        return commentRepository.countByPostId(postId);
+    }
+
     public void toggleLikeComment(Integer commentId, Integer userId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new EntityNotFoundException("Bình luận không tồn tại."));
@@ -115,13 +123,33 @@ public class CommentService {
         return new ArrayList<>(comment.getLikeUsers());
     }
 
+    public Comment findCommentById(Integer commentId) {
+        Optional<Comment> comment = commentRepository.findById(commentId);
+        if (comment.isPresent()) {
+            return comment.get();
+        } else {
+            throw new RuntimeException("Comment not found with id " + commentId);
+        }
+    }
+
+
     private CommentDTO convertToDTO(Comment comment) {
+        UserDTO userDTO = null;
+
+        Optional<User> userOptional = userRepository.findById(comment.getUser().getId());
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            userDTO = new UserDTO(user.getId(), user.getName(), user.getProfilePicture());
+        }
+
         CommentDTO dto = new CommentDTO();
         dto.setId(comment.getId());
         dto.setPostId(comment.getPost().getId());
         dto.setUserId(comment.getUser().getId());
         dto.setContent(comment.getContent());
         dto.setCreatedAt(DateConverter.localDateTimeToDateWithSlash(comment.getCreatedAt()));
+
+        dto.setCreatedBy(userDTO);
 
         List<CommentDTO> repliesDTO = comment.getReplies() != null ?
                 comment.getReplies().stream()
@@ -133,11 +161,11 @@ public class CommentService {
         likeDTO.setLikeCount(comment.getLikeUsers().size());
         likeDTO.setLikeByUsers(comment.getLikeUsers().stream()
                 .map(user -> {
-                    UserDTO userDTO = new UserDTO();
-                    userDTO.setId(user.getId());
-                    userDTO.setName(user.getName());
-                    userDTO.setProfilePicture(user.getProfilePicture());
-                    return userDTO;
+                    UserDTO likeUserDTO = new UserDTO();
+                    likeUserDTO.setId(user.getId());
+                    likeUserDTO.setName(user.getName());
+                    likeUserDTO.setProfilePicture(user.getProfilePicture());
+                    return likeUserDTO;
                 })
                 .collect(Collectors.toList()));
 

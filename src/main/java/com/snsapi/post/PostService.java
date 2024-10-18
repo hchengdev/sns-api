@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -142,12 +143,21 @@ public class PostService {
     }
 
     public CommentDTO convertToCommentDTO(Comment comment) {
+        UserDTO userDTO = null;
+
+        Optional<User> userOptional = userRepository.findById(comment.getUser().getId());
+        if (userOptional.isPresent()){
+            User user = userOptional.get();
+            userDTO = new UserDTO(user.getId(), user.getName(), user.getProfilePicture());
+        }
         CommentDTO commentDTO = new CommentDTO();
         commentDTO.setId(comment.getId());
         commentDTO.setPostId(comment.getPost() != null ? comment.getPost().getId() : null);
         commentDTO.setUserId(comment.getUser() != null ? comment.getUser().getId() : null);
         commentDTO.setContent(comment.getContent());
         commentDTO.setCreatedAt(DateConverter.localDateTimeToDateWithSlash(comment.getCreatedAt()));
+
+        commentDTO.setCreatedBy(userDTO);
 
         List<CommentDTO> repliesDTO = comment.getReplies() != null ?
                 comment.getReplies().stream()
@@ -162,11 +172,11 @@ public class PostService {
         List<UserDTO> likeByUsers = comment.getLikeUsers() != null ?
                 comment.getLikeUsers().stream()
                         .map(user -> {
-                            UserDTO userDTO = new UserDTO();
-                            userDTO.setId(user.getId());
-                            userDTO.setName(user.getName());
-                            userDTO.setProfilePicture(user.getProfilePicture());
-                            return userDTO;
+                            UserDTO userDTO1 = new UserDTO();
+                            userDTO1.setId(user.getId());
+                            userDTO1.setName(user.getName());
+                            userDTO1.setProfilePicture(user.getProfilePicture());
+                            return userDTO1;
                         })
                         .collect(Collectors.toList()) : new ArrayList<>();
 
