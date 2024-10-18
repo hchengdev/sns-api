@@ -1,6 +1,7 @@
 package com.snsapi.comment;
 
 import com.snsapi.like.LikeDTO;
+import com.snsapi.user.UserDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,4 +19,5 @@ public class CommentDTO {
     private String createdAt;
     private List<CommentDTO> replies;
     private LikeDTO likes;
+    private UserDTO createdBy;
 }
