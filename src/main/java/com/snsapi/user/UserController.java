@@ -142,6 +142,8 @@ public class UserController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body("Lấy danh sách bạn bè thất bại.");
+        }
+    }
 
     @GetMapping("/api/v1/users/new-users")
     public ResponseEntity<List<NewUserByMonthResponse>> getUserNumberByMonthOfYear(@RequestParam(name ="year") int year) {
