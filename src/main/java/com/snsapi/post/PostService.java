@@ -1,12 +1,18 @@
 
 package com.snsapi.post;
 
+import com.snsapi.comment.Comment;
+import com.snsapi.comment.CommentDTO;
 import com.snsapi.comment.CommentRepository;
+import com.snsapi.like.LikeDTO;
 import com.snsapi.media.Media;
 import com.snsapi.media.MediaRepository;
 import com.snsapi.user.User;
+import com.snsapi.user.UserDTO;
 import com.snsapi.user.UserRepository;
 import com.snsapi.user.UserService;
+import com.snsapi.utils.DateConverter;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -18,7 +24,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,25 +46,26 @@ public class PostService {
         return postRepository.findAll();
     }
 
-    public Post save(Integer userId, String content, Post.VisibilityEnum visibility, MultipartFile file) {
+    public Post save(Integer userId, String content, Post.VisibilityEnum visibility, MultipartFile[] files) {
         Post post = new Post();
         post.setUser(userService.findById(userId));
         post.setContent(content);
         post.setVisibility(visibility);
 
-        if (file != null && !file.isEmpty()) {
-            String savedFileName = saveFile(file);
-            if (savedFileName != null) {
-                Media media = new Media();
-                media.setFileName(savedFileName);
-                media.setMediaType(file.getContentType());
-                post.addMedia(media);
-            } else {
-                throw new RuntimeException("File upload failed");
+        post = postRepository.save(post);
+
+        if (files != null) {
+            for (MultipartFile file : files) {
+                if (!file.isEmpty()) {
+                    Media media = new Media();
+                    media.setPost(post);
+                    media.setMediaType(saveFile(file));
+                    media.setFileName(file.getOriginalFilename());
+                    mediaRepository.save(media);
+                }
             }
         }
-
-        return postRepository.save(post);
+        return post;
     }
 
     public Post updatePost(Integer postId, String content, Post.VisibilityEnum visibility, MultipartFile file) {
@@ -104,41 +114,74 @@ public class PostService {
         return postRepository.findByContent(content);
     }
 
-    public List<Post> findAllPostsByUserId(Integer userId) {
-        return postRepository.findByUserId(userId);
-    }
-
-    public void likePost(Integer postId, Integer userId) {
+    public void toggleLikePost(Integer postId, Integer userId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("Bài viết không tồn tại!!"));
+                .orElseThrow(() -> new EntityNotFoundException("Bài viết không tồn tại."));
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Người dùng không tồn tại!!"));
+                .orElseThrow(() -> new EntityNotFoundException("Người dùng không tồn tại."));
 
         if (post.getLikeUsers().contains(user)) {
-            throw new IllegalArgumentException("Bài viết đã được thích bởi người dùng!!");
+            post.getLikeUsers().remove(user);
+        } else {
+            post.getLikeUsers().add(user);
         }
-        post.getLikeUsers().add(user);
-        postRepository.save(post);
-    }
 
-    public void unlikePost(Integer postId, Integer userId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("Bài viết không tồn tại!!"));
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Người dùng không tồn tại!!"));
-
-        if (!post.getLikeUsers().contains(user)) {
-            throw new IllegalArgumentException("Bài viết chưa được thích bởi người dùng!!");
-        }
-        post.getLikeUsers().remove(user);
         postRepository.save(post);
     }
 
     public int countLikes(Integer postId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("Bài viết không tồn tại!!"));
+                .orElseThrow(() -> new IllegalArgumentException("Bài viết không tồn tại!"));
         return post.getLikeUsers().size();
+    }
+
+    public List<User> getUsersWhoLikedPost(Integer postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new EntityNotFoundException("Bài viết không tồn tại."));
+        return new ArrayList<>(post.getLikeUsers());
+    }
+
+    public CommentDTO convertToCommentDTO(Comment comment) {
+        UserDTO userDTO = null;
+
+        Optional<User> userOptional = userRepository.findById(comment.getUser().getId());
+        if (userOptional.isPresent()){
+            User user = userOptional.get();
+            userDTO = new UserDTO(user.getId(), user.getName(), user.getProfilePicture());
+        }
+        CommentDTO commentDTO = new CommentDTO();
+        commentDTO.setId(comment.getId());
+        commentDTO.setPostId(comment.getPost() != null ? comment.getPost().getId() : null);
+        commentDTO.setUserId(comment.getUser() != null ? comment.getUser().getId() : null);
+        commentDTO.setContent(comment.getContent());
+        commentDTO.setCreatedAt(DateConverter.localDateTimeToDateWithSlash(comment.getCreatedAt()));
+
+        commentDTO.setCreatedBy(userDTO);
+
+        List<CommentDTO> repliesDTO = comment.getReplies() != null ?
+                comment.getReplies().stream()
+                        .map(this::convertToCommentDTO)
+                        .collect(Collectors.toList()) : new ArrayList<>();
+        commentDTO.setReplies(repliesDTO);
+
+        LikeDTO likeDTO = new LikeDTO();
+        int likeCount = comment.getLikeUsers() != null ? comment.getLikeUsers().size() : 0;
+        likeDTO.setLikeCount(likeCount);
+
+        List<UserDTO> likeByUsers = comment.getLikeUsers() != null ?
+                comment.getLikeUsers().stream()
+                        .map(user -> {
+                            UserDTO userDTO1 = new UserDTO();
+                            userDTO1.setId(user.getId());
+                            userDTO1.setName(user.getName());
+                            userDTO1.setProfilePicture(user.getProfilePicture());
+                            return userDTO1;
+                        })
+                        .collect(Collectors.toList()) : new ArrayList<>();
+
+        likeDTO.setLikeByUsers(likeByUsers);
+        commentDTO.setLikes(likeDTO);
+        return commentDTO;
     }
 }

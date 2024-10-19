@@ -37,9 +37,6 @@ public class Post {
     @Column(name = "content")
     private String content;
 
-    @Column(name = "image")
-    private String image;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "visibility")
     private VisibilityEnum visibility;
@@ -78,20 +75,5 @@ public class Post {
             mediaItem.setPost(this);
             this.media.add(mediaItem);
         }
-    }
-
-    public void addComment(Comment comment) {
-        if (comment != null) {
-            comment.setPost(this);
-            this.comments.add(comment);
-        }
-    }
-
-    public void likePost(User user) {
-        this.likeUsers.add(user);
-    }
-
-    public void unlikePost(User user) {
-        this.likeUsers.remove(user);
     }
 }

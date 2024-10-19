@@ -1,14 +1,14 @@
-package com.snsapi.comment;
+package com.snsapi.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentResponse {
-    private List<CommentDTO> comments;
+public class UserDTO {
+    private Integer id;
+    private String name;
+    private String profilePicture;
 }
