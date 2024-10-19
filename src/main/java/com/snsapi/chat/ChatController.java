@@ -9,7 +9,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*")
-@RequestMapping("/api/messages")
+@RequestMapping("/api/v1/messages")
 public class ChatController {
     @Autowired
     private ChatService chatService;

@@ -2,6 +2,7 @@ package com.snsapi.chat;
 
 
 import com.snsapi.user.User;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,15 +11,13 @@ import java.util.Set;
 
 @RestController
 @CrossOrigin(origins = "*")
-@RequestMapping("/api/group")
+@RequestMapping("/api/v1/groupMessages")
 public class GroupChatController {
 
     private final GroupChatService groupChatService;
-    private final ChatService chatService;
 
-    public GroupChatController(GroupChatService groupChatService, ChatService chatService) {
+    public GroupChatController(GroupChatService groupChatService) {
         this.groupChatService = groupChatService;
-        this.chatService = chatService;
     }
 
     @PostMapping("/create")
@@ -27,9 +26,26 @@ public class GroupChatController {
         groupChatService.addMember(groupChat.getId(), userId);
         return groupChat;
     }
-    @PostMapping("/{groupId}/addMember")
-    public GroupChat addMember(@PathVariable Integer groupId, @RequestBody Integer id) {
-        return groupChatService.addMember(groupId, id);
+
+    @PostMapping("/{groupId}/addMember/{userId}")
+    public GroupChat addMember(@PathVariable Integer groupId, @PathVariable Integer userId) {
+        return groupChatService.addMember(groupId, userId);
+    }
+
+    @PostMapping("/addMessage")
+    public ResponseEntity<GroupChatMessage> sendMessage(@RequestBody GroupChatMessage groupChatMessage) {
+        try {
+            GroupChatMessage savedMessage = groupChatService.saveMessage(groupChatMessage);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedMessage);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @DeleteMapping("/delete/messages/{id}")
+    public ResponseEntity<Void> deleteMessage(@PathVariable Integer id) {
+        groupChatService.deleteMessage(id);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{groupId}/messages")
@@ -38,13 +54,13 @@ public class GroupChatController {
     }
 
     @GetMapping("/{groupId}/members")
-    public Set<User> getMembers(@PathVariable Integer groupId) {
+    public Set<UserGroupChatRes> getMembers(@PathVariable Integer groupId) {
         return groupChatService.getMembers(groupId);
     }
 
     @GetMapping("/allUsers")
-    public List<User> getAllUsers() {
-        return chatService.getAllUsers();
+    public List<UserGroupChatRes> getAllUsers() {
+        return groupChatService.getAllUsers();
     }
 
 
@@ -53,5 +69,16 @@ public class GroupChatController {
         List<GroupChat> groups = groupChatService.getGroupsByUserId(userId);
         return ResponseEntity.ok(groups);
     }
+
+    @DeleteMapping("/{groupId}/removeMember/{userId}")
+    public ResponseEntity<GroupChat> removeMember(@PathVariable Integer groupId, @PathVariable Integer userId) {
+        try {
+            GroupChat updatedGroupChat = groupChatService.removeMember(groupId, userId);
+            return ResponseEntity.ok(updatedGroupChat);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
 
 }
