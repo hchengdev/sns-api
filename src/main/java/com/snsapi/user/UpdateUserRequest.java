@@ -14,6 +14,7 @@ public class UpdateUserRequest {
     private String name;
     private String phone;
     private Gender gender;
+    private String email;
     private String biography;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate birthday;
