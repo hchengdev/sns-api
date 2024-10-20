@@ -79,4 +79,8 @@ public class NotificationService {
         notifications.forEach(Notification::markAsRead);
         notificationRepository.saveAll(notifications);
     }
+
+    public Integer countUnreadNotificationsForUser(User recipient) {
+        return notificationRepository.countByRecipientAndIsReadFalse(recipient);
+    }
 }
