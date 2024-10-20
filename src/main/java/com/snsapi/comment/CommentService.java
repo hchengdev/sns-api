@@ -67,28 +67,21 @@ public class CommentService {
         commentRepository.delete(comment);
     }
 
-    public CommentDTO saveReply(Integer userId, Integer postId, Integer commentId, String content) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Người dùng không tồn tại."));
-
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("Bài viết không tồn tại."));
-
-        Comment parentComment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new EntityNotFoundException("Bình luận không tồn tại."));
+    public CommentDTO saveReply(Integer userId, Integer postId, Integer parentCommentId, String content) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
+        Comment parentComment = commentRepository.findById(parentCommentId)
+                .orElseThrow(() -> new RuntimeException("Parent comment not found"));
 
         Comment reply = new Comment();
         reply.setUser(user);
         reply.setPost(post);
-        reply.setContent(content);
         reply.setParentComment(parentComment);
+        reply.setContent(content);
 
         Comment savedReply = commentRepository.save(reply);
 
-        parentComment.getReplies().add(savedReply);
-        commentRepository.save(parentComment);
-
-        return convertToDTO(savedReply);
+        return new CommentDTO(savedReply);
     }
 
     public int countCommentsForPost(Integer postId) {
@@ -148,6 +141,9 @@ public class CommentService {
         dto.setUserId(comment.getUser().getId());
         dto.setContent(comment.getContent());
         dto.setCreatedAt(DateConverter.localDateTimeToDateWithSlash(comment.getCreatedAt()));
+        dto.setReplies(comment.getReplies().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList()));
 
         dto.setCreatedBy(userDTO);
 
@@ -171,5 +167,10 @@ public class CommentService {
 
         dto.setLikes(likeDTO);
         return dto;
+    }
+
+    public Comment findById(Integer commentId) {
+        return commentRepository.findById(commentId)
+                .orElseThrow(() -> new EntityNotFoundException("Bình luận không tồn tại."));
     }
 }
