@@ -1,10 +1,7 @@
 package com.snsapi.friend;
 
 import com.snsapi.config.jwt.JwtService;
-import com.snsapi.user.FindUserResponse;
-import com.snsapi.user.User;
-import com.snsapi.user.UserService;
-import com.snsapi.user.UserServices;
+import com.snsapi.user.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +26,7 @@ public class AddFriendRestController {
         try {
             token = token.startsWith("Bearer") ? token.substring(7) : token;
             Integer id = jwtService.getUserIdFromToken(token);
-            addFriendService.addFriend(userId, id);
+            addFriendService.pendingFriend(userId, id);
             return ResponseEntity.ok("Gửi yêu cầu kết bạn thành công.");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Thêm bạn bè thất bại.");
@@ -41,7 +38,7 @@ public class AddFriendRestController {
         try {
             token = token.startsWith("Bearer") ? token.substring(7) : token;
             int id = jwtService.getUserIdFromToken(token);
-            addFriendService.acceptFriend(userId, id);
+            addFriendService.acceptFriend( id, userId);
             return ResponseEntity.ok("Chấp nhận kết bạn thành công.");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Chấp nhận kết bạn thất bại.");
@@ -85,33 +82,6 @@ public class AddFriendRestController {
         }
     }
 
-    @GetMapping("/friends")
-    public ResponseEntity<?> getFriends(@RequestHeader("Authorization") String token) {
-        try {
-            token = token.startsWith("Bearer") ? token.substring(7) : token;
-            int id = jwtService.getUserIdFromToken(token);
-            List<User> findAllFriends = addFriendService.findAllFriends(id);
-            if (findAllFriends.isEmpty()) {
-                return ResponseEntity.ok("Không có bạn bè.");
-            }
-            return ResponseEntity.ok(findAllFriends);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body("Lấy danh sách bạn bè thất bại.");
-        }
-    }
 
-    @GetMapping("/friends/{id}")
-    public ResponseEntity<?> getFriends(@PathVariable("id") Integer friendId) {
-        try {
-            List<User> findAllFriends = addFriendService.findAllFriends(friendId);
-            if (findAllFriends.isEmpty()) {
-                return ResponseEntity.ok("Không có bạn bè.");
-            }
-            return ResponseEntity.ok(findAllFriends);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body("Lấy danh sách bạn bè thất bại.");
-        }
-    }
+
 }

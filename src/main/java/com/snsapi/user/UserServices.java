@@ -41,6 +41,7 @@ public class UserServices {
                 .phone(request.getPhone())
                 .address(request.getAddress())
                 .gender(request.getGender())
+                .email(request.getEmail())
                 .biography(request.getBiography())
                 .birthday(request.getBirthday())
                 .profilePicture(request.getProfilePicture()).build();
@@ -59,6 +60,7 @@ public class UserServices {
                 .birthday(request.getBirthday())
                 .creationDate(sqlDate1)
                 .profilePicture("anh-ech-meme-hai-huoc_102044545.jpg")
+                .statusFriend(StatusFriend.PUBLIC)
                 .active(request.getActive() != null ? request.getActive() : true)
                 .roles(new HashSet<>(Set.of(Role.ROLE_USER)))
                 .build();
@@ -135,6 +137,16 @@ public class UserServices {
         }
     }
 
+    public List<UserDTO> findUserByName (String name) throws IOException {
+        if (name != null) {
+            List<User> userDTOS = userRepository.findByName(name);
+            return userDTOS.stream()
+                    .map(this::convertToUserDTO)
+                    .collect(Collectors.toList());
+        }
+        return new ArrayList<>();
+    }
+
     private FindUserResponse convertToFindUserRequest(User user) {
         return FindUserResponse.builder()
                 .id(user.getId())
@@ -144,6 +156,13 @@ public class UserServices {
                 .profilePicture(user.getProfilePicture())
                 .biography(user.getBiography())
                 .address(user.getAddress())
+                .build();
+    }
+    private UserDTO convertToUserDTO(User user) {
+        return UserDTO.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .profilePicture(user.getProfilePicture())
                 .build();
     }
 
@@ -166,5 +185,8 @@ public class UserServices {
         return passwordEncoder.encode(password);
     }
 
+    public List<NewUserByMonthResponse> getUserNumberByMonthOfYear(int year) {
+        return  userRepository.getUserNumberByMonthOfYear(year);
+    }
 }
 

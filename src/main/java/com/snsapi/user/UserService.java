@@ -66,5 +66,7 @@ public class UserService implements UserServiceInterface, UserDetailsService {
     public Optional<User> findByUserEmail(String email) {
         return userRepository.findByEmail(email);
     }
+
+
 }
 

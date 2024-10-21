@@ -10,9 +10,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -46,7 +49,7 @@ public class Comment {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @CreatedDate
+    @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
@@ -56,24 +59,12 @@ public class Comment {
             joinColumns = @JoinColumn(name = "comment_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private Set<User> likeUsers;
+    private Set<User> likeUsers = new HashSet<>();
 
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Comment> replies = new ArrayList<>();
 
-//    TODO: uncomment later
-//    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-//    @JoinColumn(name = "post_id")
-//    private Post post;
-
-//    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-//    private List<User> likes;
-
-//    public void likeComment (User user) {
-//        if(!likes.contains(user)) {
-//            likes.add(user);
-//        }
-//    }
-
-//    public void unLikeComment (User user) {
-//        likes.remove(user);
-//    }
+    @ManyToOne
+    @JoinColumn(name = "parent_comment_id")
+    private Comment parentComment;
 }
