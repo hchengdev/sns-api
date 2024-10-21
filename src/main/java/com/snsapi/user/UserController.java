@@ -190,6 +190,17 @@ public class UserController {
         }
     }
 
+    @GetMapping("/api/v1/me/waiting-friend/{id}")
+    public ResponseEntity<?> getWaitingFriend(@PathVariable Integer id) {
+        try {
+            List<UserDTO> waitingUsers = addFriendService.findAllFriendWaiting(id);
+            return ResponseEntity.ok(waitingUsers);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Lấy danh sách người dùng đang đ��i thất bại.");
+        }
+    }
+
     @GetMapping("/api/v1/user")
     public ResponseEntity<?> getUserByUsername(@RequestParam(name = "username", required = false) String username) throws Exception {
             if (username != null) {
